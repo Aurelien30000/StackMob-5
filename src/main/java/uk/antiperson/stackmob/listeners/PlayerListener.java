@@ -26,7 +26,7 @@ public class PlayerListener implements Listener {
         if (!(event.getRightClicked() instanceof Mob)) {
             return;
         }
-        if (!sm.getEntityManager().isStackedEntity((LivingEntity) event.getRightClicked())) {
+        if (!sm.getItemTools().isStackingTool(event.getPlayer().getInventory().getItemInMainHand())) {
             return;
         }
         StackingTool stackingTool = new StackingTool(sm, event.getPlayer());
