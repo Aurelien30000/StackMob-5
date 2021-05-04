@@ -9,8 +9,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.entity.StackEntity;
 
-import java.util.List;
-
 public class TagTask extends BukkitRunnable {
 
     private final StackMob sm;
