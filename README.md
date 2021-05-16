@@ -31,6 +31,7 @@ StackMob does have a few custom events that can be used. These are in the events
 Maven:
 
 ```xml
+
 <repository>
     <id>CodeMC</id>
     <url>https://repo.codemc.org/repository/maven-public/</url>
@@ -38,6 +39,7 @@ Maven:
 ```
 
 ```xml
+
 <dependency>
     <groupId>uk.antiperson.stackmob</groupId>
     <artifactId>StackMob</artifactId>
