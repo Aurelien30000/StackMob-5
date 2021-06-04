@@ -28,6 +28,8 @@ public class MainConfig extends SpecialConfigFile {
     private final Map<EntityType, Integer> stack_threshold_amount = new EnumMap<>(EntityType.class);
     private boolean default_stack_check_location_enabled;
     private double default_stack_check_location_distance;
+    private boolean default_stack_on_spawn;
+    private final Map<EntityType, Boolean> stack_on_spawn = new EnumMap<>(EntityType.class);
 
 
     private String default_display_name_format;
@@ -129,6 +131,7 @@ public class MainConfig extends SpecialConfigFile {
         default_stack_threshold_amount = getInt("stack.threshold.amount");
         default_stack_check_location_enabled = getBoolean("stack.check-location.enabled");
         default_stack_check_location_distance = getDouble("stack.check-location.distance");
+        default_stack_on_spawn = getBoolean("stack.on-spawn");
 
 
         default_display_name_format = getString("display-name.format");
@@ -222,6 +225,10 @@ public class MainConfig extends SpecialConfigFile {
             final int custom_stack_threshold_amount = getInt(type, "stack.threshold.amount");
             if (custom_stack_threshold_amount != default_stack_threshold_amount)
                 stack_threshold_amount.put(type, custom_stack_threshold_amount);
+
+            final boolean custom_stack_on_spawn = getBoolean(type, "stack.on-spawn");
+            if (custom_stack_on_spawn != default_stack_on_spawn)
+                stack_on_spawn.put(type, custom_stack_on_spawn);
 
 
             final String custom_display_name_format = getString(type, "display-name.format");
@@ -412,6 +419,10 @@ public class MainConfig extends SpecialConfigFile {
 
     public double getCheckHasMovedDistance() {
         return default_stack_check_location_distance;
+    }
+
+    public boolean isStackOnSpawn(EntityType type) {
+        return stack_on_spawn.getOrDefault(type, default_stack_on_spawn);
     }
 
     public String getTagFormat(EntityType type) {

@@ -47,6 +47,11 @@ public class SpawnListener implements Listener {
                 original.makeWait();
                 return;
             }
+            original.setSize(1, eventEntity.getCustomName() == null);
+            sm.getHookManager().onSpawn(original);
+            if (!sm.getMainConfig().isStackOnSpawn(eventEntity.getType())) {
+                return;
+            }
             final Integer[] searchRadius = sm.getMainConfig().getStackRadius(eventEntity.getType());
             for (Entity entity : eventEntity.getNearbyEntities(searchRadius[0], searchRadius[1], searchRadius[2])) {
                 if (!(entity instanceof Mob)) {
@@ -68,8 +73,6 @@ public class SpawnListener implements Listener {
                 original.merge(nearby, true);
                 return;
             }
-            original.setSize(1, eventEntity.getCustomName() == null);
-            sm.getHookManager().onSpawn(original);
         });
     }
 

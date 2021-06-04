@@ -30,7 +30,7 @@ public class BreedInteractListener implements Listener {
         if (!(event.getRightClicked() instanceof Animals)) {
             return;
         }
-        Animals animals = (Animals) event.getRightClicked();
+        final Animals animals = (Animals) event.getRightClicked();
         if (!animals.canBreed()) {
             return;
         }
@@ -39,30 +39,30 @@ public class BreedInteractListener implements Listener {
         if (!EntityFood.isCorrectFood(event.getRightClicked(), foodItem.getType())) {
             return;
         }
-        StackEntity stackEntity = sm.getEntityManager().getStackEntity(animals);
+        final StackEntity stackEntity = sm.getEntityManager().getStackEntity(animals);
         if (stackEntity == null || stackEntity.isSingle()) {
             return;
         }
-        ListenerMode breed = sm.getMainConfig().getListenerMode(animals.getType(), "breed");
+        final ListenerMode breed = sm.getMainConfig().getListenerMode(animals.getType(), "breed");
         if (breed == ListenerMode.SPLIT) {
             stackEntity.slice();
             return;
         }
-        int itemAmount = player.getInventory().getItemInMainHand().getAmount();
+        final int itemAmount = player.getInventory().getItemInMainHand().getAmount();
         stackEntity.splitIfNotEnough(itemAmount);
         if (itemAmount == 1) {
             Utilities.removeHandItem(player, 1);
             return;
         }
-        int kidAmount = sm.getMainConfig().getEventMultiplyLimit(animals.getType(), "breed", stackEntity.getSize() / 2);
-        int parentAmount = kidAmount * 2;
+        final int kidAmount = sm.getMainConfig().getEventMultiplyLimit(animals.getType(), "breed", stackEntity.getSize() / 2);
+        final int parentAmount = kidAmount * 2;
         if (stackEntity.getSize() > parentAmount) {
             stackEntity.slice(parentAmount);
         }
         Utilities.removeHandItem(player, parentAmount);
         stackEntity.getDrops().dropExperience(event.getRightClicked().getLocation(), 1, 7, kidAmount);
         // Spawn the kid
-        StackEntity kid = stackEntity.duplicate(kidAmount);
+        final StackEntity kid = stackEntity.duplicate(kidAmount);
         ((Animals) kid.getEntity()).setBaby();
         // Update the adult
         animals.setBreed(false);

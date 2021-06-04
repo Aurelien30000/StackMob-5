@@ -48,7 +48,9 @@ public class ShearListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onShearSheep(BlockShearEntityEvent event) {
         final ItemStack is = shearLogic((LivingEntity) event.getEntity(), event.getTool());
-        if (is == null) {
+        final int durability = ((Damageable) event.getTool().getItemMeta()).getDamage();
+        final int maxDurability = event.getTool().getType().getMaxDurability();
+        if (is == null || (maxDurability - durability) == 1) {
             return;
         }
         sm.getServer().getScheduler().runTask(sm, () -> {
@@ -121,7 +123,7 @@ public class ShearListener implements Listener {
     }
 
     private Material getMaterial(MushroomCow mushroomCow) {
-        if (!Utilities.isNewBukkit()) {
+        if (Utilities.isNewBukkit()) {
             return Material.RED_MUSHROOM;
         }
         return mushroomCow.getVariant() == MushroomCow.Variant.RED ? Material.RED_MUSHROOM : Material.BROWN_MUSHROOM;
