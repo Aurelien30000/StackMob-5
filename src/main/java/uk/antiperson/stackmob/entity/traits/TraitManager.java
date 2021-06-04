@@ -8,6 +8,7 @@ import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.entity.traits.trait.*;
 import uk.antiperson.stackmob.utils.Utilities;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +23,7 @@ public class TraitManager {
         this.traitsPerEntity = new EnumMap<>(EntityType.class);
     }
 
-    public void registerTraits() throws InstantiationException, IllegalAccessException {
+    public void registerTraits() throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         registerTrait(SheepColor.class);
         registerTrait(SheepShear.class);
         registerTrait(HorseColor.class);
@@ -42,14 +43,11 @@ public class TraitManager {
         registerTrait(Leash.class);
         registerTrait(Potion.class);
         registerTrait(VillagerProfession.class);
+        registerTrait(ZoglinBaby.class);
+        registerTrait(PiglinBaby.class);
         if (Utilities.isPaper()) {
             registerTrait(TurtleHasEgg.class);
         }
-        if (Utilities.isNewBukkit()) {
-            return;
-        }
-        registerTrait(ZoglinBaby.class);
-        registerTrait(PiglinBaby.class);
     }
 
     /**
@@ -59,10 +57,10 @@ public class TraitManager {
      * @throws IllegalAccessException if class is not accessible
      * @throws InstantiationException if class can not be instantiated
      */
-    private void registerTrait(Class<? extends Trait> trait) throws IllegalAccessException, InstantiationException {
-        TraitMetadata traitMetadata = trait.getAnnotation(TraitMetadata.class);
+    private void registerTrait(Class<? extends Trait> trait) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        final TraitMetadata traitMetadata = trait.getAnnotation(TraitMetadata.class);
         if (sm.getMainConfig().isTraitEnabled(traitMetadata.path()) || sm.getMainConfig().getBoolean(traitMetadata.path())) {
-            final Trait newTrait = trait.newInstance();
+            final Trait newTrait = trait.getDeclaredConstructor().newInstance();
 
             for (EntityType entityType : EntityType.values()) {
                 if (entityType.isAlive() && isTraitApplicable(newTrait, entityType.getEntityClass())) {

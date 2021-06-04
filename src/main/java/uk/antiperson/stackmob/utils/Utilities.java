@@ -81,7 +81,7 @@ public class Utilities {
         return usingPaper;
     }
 
-    public static boolean isNewBukkit() {
+    public static boolean isLegacyVersion() {
         return usingLegacy;
     }
 
