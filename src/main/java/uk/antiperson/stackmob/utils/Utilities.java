@@ -1,7 +1,6 @@
 package uk.antiperson.stackmob.utils;
 
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -91,10 +90,6 @@ public class Utilities {
 
     public static boolean isDye(ItemStack material) {
         return material.getType().toString().endsWith("_DYE");
-    }
-
-    public static double distance(Location locationA, Location locationB) {
-        return locationA.distance(locationB);
     }
 
     public static void removeHandItem(Player player, int itemAmount) {

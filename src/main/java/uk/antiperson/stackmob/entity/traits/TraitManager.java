@@ -56,6 +56,8 @@ public class TraitManager {
      * @param trait class that implements trait
      * @throws IllegalAccessException if class is not accessible
      * @throws InstantiationException if class can not be instantiated
+     * @throws NoSuchMethodException if class constructor can not be found
+     * @throws InvocationTargetException if instanciation fails
      */
     private void registerTrait(Class<? extends Trait> trait) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         final TraitMetadata traitMetadata = trait.getAnnotation(TraitMetadata.class);
