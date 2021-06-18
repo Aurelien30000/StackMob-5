@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
-    public static final String PREFIX = ChatColor.DARK_GREEN + "StackMob " + ChatColor.GRAY + ">> " + ChatColor.RESET;
+    public static final String PREFIX = ChatColor.of("#00CED1") + "StackMob " + ChatColor.GRAY + ">> " + ChatColor.RESET;
     public static final String SLIME_METADATA = "deathcount";
     public static final String NO_LEASH_METADATA = "stop-leash";
     public static final String DISCORD = "https://discord.gg/fz9xzuB";
@@ -31,9 +31,17 @@ public class Utilities {
     public static final List<Material> DROWNED_MATERIALS = Arrays.asList(Material.NAUTILUS_SHELL, Material.TRIDENT);
     public static final List<EquipmentSlot> HAND_SLOTS = Arrays.asList(EquipmentSlot.HAND, EquipmentSlot.OFF_HAND);
 
-    private static final boolean usingPaper = Package.getPackage("com.destroystokyo.paper") != null;
-    private static final boolean usingLegacy = Package.getPackage("net.minecraft.server.v1_15_R1") == null;
-    private static final boolean usingNative = Package.getPackage("net.minecraft.server.v1_16_R3") != null;
+    private static boolean usingPaper = false;
+
+    static {
+        try {
+            Class.forName("com.destroystokyo.paper.PaperConfig");
+            usingPaper = true;
+        } catch (ClassNotFoundException ignored) {
+        }
+    }
+
+    private static final boolean usingNative = ClassLoader.getSystemClassLoader().getDefinedPackage("org.bukkit.craftbukkit.v1_17_R1") != null;
 
     public static String translateColorCodes(String toTranslate) {
         Matcher matcher = hexPattern.matcher(toTranslate);
@@ -78,10 +86,6 @@ public class Utilities {
 
     public static boolean isPaper() {
         return usingPaper;
-    }
-
-    public static boolean isLegacyVersion() {
-        return usingLegacy;
     }
 
     public static boolean isNativeVersion() {

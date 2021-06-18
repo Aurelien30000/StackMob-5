@@ -54,9 +54,9 @@ public class TraitManager {
      * If a class hasn't been disabled in the config, add this to the hashset so it can be looped over.
      *
      * @param trait class that implements trait
-     * @throws IllegalAccessException if class is not accessible
-     * @throws InstantiationException if class can not be instantiated
-     * @throws NoSuchMethodException if class constructor can not be found
+     * @throws IllegalAccessException    if class is not accessible
+     * @throws InstantiationException    if class can not be instantiated
+     * @throws NoSuchMethodException     if class constructor can not be found
      * @throws InvocationTargetException if instanciation fails
      */
     private void registerTrait(Class<? extends Trait> trait) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {

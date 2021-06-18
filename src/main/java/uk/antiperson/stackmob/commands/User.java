@@ -1,6 +1,6 @@
 package uk.antiperson.stackmob.commands;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 import uk.antiperson.stackmob.utils.Utilities;
 

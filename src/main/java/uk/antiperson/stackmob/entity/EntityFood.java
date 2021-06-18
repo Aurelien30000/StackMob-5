@@ -37,7 +37,7 @@ public enum EntityFood {
     FOX(Material.SWEET_BERRIES),
     CAT(Tameable::isTamed, Material.SALMON, Material.COD),
     BEE(Tag.FLOWERS.getValues().toArray(new Material[0])),
-    HOGLIN(Material.matchMaterial("CRIMSON_FUNGUS")),
+    HOGLIN(Material.CRIMSON_FUNGUS),
     INVALID;
 
     private final Predicate<Tameable> predicate;
@@ -70,7 +70,7 @@ public enum EntityFood {
     }
 
     public static boolean isCorrectFood(Entity entity, Material type) {
-        EntityFood food = matchFood(entity.getType());
+        final EntityFood food = matchFood(entity.getType());
         if (food.getPredicate() != null && !food.getPredicate().getClass().isAssignableFrom(entity.getClass())) {
             return false;
         }

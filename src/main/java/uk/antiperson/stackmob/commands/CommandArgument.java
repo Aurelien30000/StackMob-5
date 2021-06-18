@@ -1,5 +1,6 @@
 package uk.antiperson.stackmob.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 
@@ -48,6 +49,9 @@ public class CommandArgument {
                 return strings;
             case BOOLEAN:
                 return Arrays.asList("true", "false");
+            case WORLD:
+                Bukkit.getWorlds().forEach(world -> strings.add(world.getName()));
+                return strings;
         }
         return strings;
     }
