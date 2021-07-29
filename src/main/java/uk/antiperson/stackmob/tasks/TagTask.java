@@ -32,15 +32,15 @@ public class TagTask extends BukkitRunnable {
                     continue;
                 }
                 if (sm.getMainConfig().getTagMode(entity.getType()) != StackEntity.TagMode.NEARBY) {
-                    return;
+                    continue;
                 }
                 final StackEntity stackEntity = sm.getEntityManager().getStackEntity((LivingEntity) entity);
                 if (stackEntity == null) {
-                    return;
+                    continue;
                 }
                 final int threshold = sm.getMainConfig().getTagThreshold(stackEntity.getEntity().getType());
                 if (stackEntity.getSize() <= threshold) {
-                    return;
+                    continue;
                 }
                 final double xDiff = Math.abs(player.getLocation().getX() - entity.getLocation().getX());
                 final double yDiff = Math.abs(player.getLocation().getY() - entity.getLocation().getY());
