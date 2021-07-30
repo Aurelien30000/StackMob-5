@@ -89,21 +89,26 @@ public class StackMob extends JavaPlugin {
         command.setExecutor(commands);
         command.setTabCompleter(commands);
         commands.registerSubCommands();
-        int stackInterval = getMainConfig().getStackInterval();
+        final int stackInterval = getMainConfig().getStackInterval();
         new MergeTask(this).runTaskTimer(this, 5, stackInterval);
-        if (Utilities.isNativeVersion()) {
-            int tagInterval = getMainConfig().getTagNearbyInterval();
-            new TagTask(this).runTaskTimer(this, 5, tagInterval);
-        } else {
-            getLogger().warning("You are not running the plugin native version and ProtocolLib could not be found (or has been disabled).");
+        final int tagInterval = getMainConfig().getTagNearbyInterval();
+        new TagTask(this).runTaskTimer(this, 10, tagInterval);
+        if (!Utilities.isNativeVersion() && getHookManager().getProtocolLibHook() == null) {
+            getLogger().warning("You are not running the plugins native version and ProtocolLib could not be found (or has been disabled).");
             getLogger().warning("The display name visibility setting 'NEARBY' will not work unless this is fixed.");
         }
         getEntityManager().registerAllEntities();
         getUpdater().checkUpdate().whenComplete(((updateResult, throwable) -> {
             switch (updateResult.getResult()) {
-                case NONE: getLogger().info("No update is currently available."); break;
-                case ERROR: getLogger().info("There was an error while getting the latest update."); break;
-                case AVAILABLE: getLogger().info("A new version is currently available. (" + updateResult.getNewVersion() + ")"); break;
+                case NONE:
+                    getLogger().info("No update is currently available.");
+                    break;
+                case ERROR:
+                    getLogger().info("There was an error while getting the latest update.");
+                    break;
+                case AVAILABLE:
+                    getLogger().info("A new version is currently available. (" + updateResult.getNewVersion() + ")");
+                    break;
             }
         }));
         if (!Utilities.isPaper()) {
