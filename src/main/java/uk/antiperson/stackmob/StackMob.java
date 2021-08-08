@@ -124,6 +124,7 @@ public class StackMob extends JavaPlugin {
     }
 
     private void registerEvents() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        registerEvent(BucketListener.class);
         registerEvent(DeathListener.class);
         registerEvent(TransformListener.class);
         registerEvent(BreedInteractListener.class);
