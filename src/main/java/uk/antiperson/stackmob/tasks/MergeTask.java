@@ -1,7 +1,7 @@
 package uk.antiperson.stackmob.tasks;
 
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.IntCollection;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.IntSet;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -22,7 +22,7 @@ public class MergeTask extends BukkitRunnable {
     }
 
     public void run() {
-        final IntCollection toRemove = new IntOpenHashSet();
+        final IntSet toRemove = new IntOpenHashSet();
         final boolean checkHasMoved = sm.getMainConfig().isCheckHasMoved();
         final double checkHasMovedDistance = sm.getMainConfig().getCheckHasMovedDistance();
         originals:

@@ -9,7 +9,7 @@ public interface Trait {
      *
      * @param first  the initial entity.
      * @param nearby the entity the first should stack with
-     * @return whether these two entities should stack.
+     * @return if these entities have not matching characteristic (trait).
      */
     boolean checkTrait(LivingEntity first, LivingEntity nearby);
 

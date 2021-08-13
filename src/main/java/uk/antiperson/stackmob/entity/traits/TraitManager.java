@@ -45,6 +45,7 @@ public class TraitManager {
         registerTrait(VillagerProfession.class);
         registerTrait(ZoglinBaby.class);
         registerTrait(PiglinBaby.class);
+        registerTrait(Aware.class);
         if (Utilities.isPaper()) {
             registerTrait(TurtleHasEgg.class);
         }

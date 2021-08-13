@@ -95,6 +95,9 @@ traits:
   leashed: true
   potion-effect: true
   villager-profession: true
+  # Entities spawned by nerfed spawners still have AI, they are just not aware.
+  # https://papermc.io/javadocs/paper/1.17/org/bukkit/entity/Mob.html#isAware()
+  aware: true
   # Prevent pregnant turtles from stacking. (**)
   has-egg: true
 
