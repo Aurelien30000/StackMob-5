@@ -38,8 +38,12 @@ public class StackingTool {
     }
 
     public ToolMode getMode() {
+        return getMode(getModeId());
+    }
+
+    private ToolMode getMode(int id) {
         for (ToolMode t : ToolMode.values()) {
-            if (t.ordinal() == getModeId()) {
+            if (t.ordinal() == id) {
                 return t;
             }
         }
@@ -50,9 +54,10 @@ public class StackingTool {
         ItemMeta itemMeta = itemStack.getItemMeta();
         int nextMode = (getModeId() + 1) >= ToolMode.values().length ? 0 : getModeId() + 1;
         itemMeta.getPersistentDataContainer().set(sm.getToolKey(), PersistentDataType.INTEGER, nextMode);
+        itemMeta.setDisplayName(ItemTools.ITEM_NAME + ChatColor.of("#FF6347") + " Mode: " + getMode(nextMode));
         itemStack.setItemMeta(itemMeta);
         player.getInventory().setItemInMainHand(itemStack);
-        final BaseComponent[] baseComponent = TextComponent.fromLegacyText(ChatColor.of("#D3D3D3") + "Shifted mode to " + ChatColor.of("#A9A9A9") + getMode());
+        final BaseComponent[] baseComponent = TextComponent.fromLegacyText(ChatColor.of("#D3D3D3") + "Shifted mode to " + ChatColor.of("#A9A9A9") + getMode(nextMode));
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, baseComponent);
     }
 
@@ -104,6 +109,11 @@ public class StackingTool {
             case REMOVE_SINGLE:
                 stackEntity.removeStackData();
                 break;
+            case INFO:
+                user.sendInfo("Stack information: ");
+                user.sendRawMessage("Stack size: " + stackEntity.getSize() + " Max size: " + stackEntity.getMaxSize() + " Waiting count: " + stackEntity.getWaitCount());
+                user.sendRawMessage("Can stack: " + stackEntity.canStack() + " Is blacklisted? " + sm.getMainConfig().isEntityBlacklisted(stackEntity.getEntity()));
+                return;
         }
         user.sendSuccess("Action performed successfully.");
     }
@@ -125,7 +135,8 @@ public class StackingTool {
         SLICE,
         SLICE_ALL,
         REMOVE_SINGLE,
-        REMOVE_CHUNK
+        REMOVE_CHUNK,
+        INFO
 
     }
 

@@ -58,7 +58,7 @@ public class TraitManager {
      * @throws IllegalAccessException    if class is not accessible
      * @throws InstantiationException    if class can not be instantiated
      * @throws NoSuchMethodException     if class constructor can not be found
-     * @throws InvocationTargetException if instanciation fails
+     * @throws InvocationTargetException if instantiation fails
      */
     private void registerTrait(Class<? extends Trait> trait) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         final TraitMetadata traitMetadata = trait.getAnnotation(TraitMetadata.class);
@@ -67,9 +67,8 @@ public class TraitManager {
 
             for (EntityType entityType : EntityType.values()) {
                 if (entityType.isAlive() && isTraitApplicable(newTrait, entityType.getEntityClass())) {
-                    final Set<Trait> applicableTraits = traitsPerEntity.getOrDefault(entityType, new ObjectOpenHashSet<>());
+                    final Set<Trait> applicableTraits = traitsPerEntity.computeIfAbsent(entityType, unused -> new ObjectOpenHashSet<>());
                     applicableTraits.add(newTrait);
-                    traitsPerEntity.putIfAbsent(entityType, applicableTraits);
                 }
             }
         }

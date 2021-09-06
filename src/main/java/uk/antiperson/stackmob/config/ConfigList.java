@@ -61,14 +61,4 @@ public class ConfigList {
         return worldList;
     }
 
-    public static ConfigList getConfigList(ConfigFile configFile, ConfigValue value) {
-        List<?> list = (List<?>) value.getValue();
-        String path = value.getPath();
-        if (list == null) {
-            throw new UnsupportedOperationException(path + " list is null!");
-        }
-        boolean inverted = configFile.getBoolean(value.getPath() + "-invert");
-        return new ConfigList(configFile, list, path, inverted);
-    }
-
 }

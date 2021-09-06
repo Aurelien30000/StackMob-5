@@ -3,8 +3,7 @@ package uk.antiperson.stackmob.config;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.objects.*;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import uk.antiperson.stackmob.StackMob;
@@ -37,7 +36,8 @@ public class MainConfig extends SpecialConfigFile {
     private StackEntity.TagMode default_display_name_visibility;
     private final Map<EntityType, StackEntity.TagMode> display_name_visibility = new EnumMap<>(EntityType.class);
     private Integer[] default_display_name_nearby_range;
-    private Integer default_display_name_threshold;
+    private int default_display_name_threshold;
+    private boolean default_display_name_nearby_ray_trace;
     private final Map<EntityType, Integer> display_name_threshold = new EnumMap<>(EntityType.class);
 
 
@@ -138,23 +138,24 @@ public class MainConfig extends SpecialConfigFile {
         default_display_name_visibility = StackEntity.TagMode.valueOf(getString("display-name.visibility"));
         default_display_name_nearby_range = getList("display-name.nearby.range").asIntList().toArray(new Integer[2]);
         default_display_name_threshold = getInt("display-name.threshold");
+        default_display_name_nearby_ray_trace = getBoolean("display-name.nearby.ray-trace");
 
 
         default_death_skip_animation = getBoolean("death.skip-animation");
         final Collection<DeathType> death_priorities = getDeathSection(null);
         default_death_priority.addAll(death_priorities);
         for (DeathType defaultDeathOption : death_priorities) {
-            final Set<EntityType> entityTypes = default_death_type_blacklist.getOrDefault(defaultDeathOption, EnumSet.noneOf(EntityType.class));
+            final Set<EntityType> entityTypes = default_death_type_blacklist.computeIfAbsent(defaultDeathOption, unused -> EnumSet.noneOf(EntityType.class));
             entityTypes.addAll(getList("death." + defaultDeathOption + ".type-blacklist").asEnumList(EntityType.class));
-            default_death_type_blacklist.putIfAbsent(defaultDeathOption, entityTypes);
+            for (EntityGrouping entityGrouping : getList("death." + defaultDeathOption + ".type-blacklist").asEnumList(EntityGrouping.class)) {
+                entityTypes.addAll(entityGrouping.getEntityTypes());
+            }
 
-            final Set<EntityDamageEvent.DamageCause> damageCauses = default_death_reason_blacklist.getOrDefault(defaultDeathOption, EnumSet.noneOf(EntityDamageEvent.DamageCause.class));
+            final Set<EntityDamageEvent.DamageCause> damageCauses = default_death_reason_blacklist.computeIfAbsent(defaultDeathOption, unused -> EnumSet.noneOf(EntityDamageEvent.DamageCause.class));
             damageCauses.addAll(getList("death." + defaultDeathOption + ".reason-blacklist").asEnumList(EntityDamageEvent.DamageCause.class));
-            default_death_reason_blacklist.putIfAbsent(defaultDeathOption, damageCauses);
 
-            final Set<CreatureSpawnEvent.SpawnReason> spawnReasons = default_spawn_reason_blacklist.getOrDefault(defaultDeathOption, EnumSet.noneOf(CreatureSpawnEvent.SpawnReason.class));
+            final Set<CreatureSpawnEvent.SpawnReason> spawnReasons = default_spawn_reason_blacklist.computeIfAbsent(defaultDeathOption, unused -> EnumSet.noneOf(CreatureSpawnEvent.SpawnReason.class));
             spawnReasons.addAll(getList("death." + defaultDeathOption + ".spawn-reason-blacklist").asEnumList(CreatureSpawnEvent.SpawnReason.class));
-            default_spawn_reason_blacklist.putIfAbsent(defaultDeathOption, spawnReasons);
         }
         default_death_step_max_step = getInt("death.STEP.max-step");
         default_death_step_min_step = getInt("death.STEP.min-step");
@@ -189,6 +190,9 @@ public class MainConfig extends SpecialConfigFile {
 
 
         default_types_blacklist.addAll(getList("types-blacklist").asEnumList(EntityType.class));
+        for (EntityGrouping entityGrouping : getList("types-blacklist").asEnumList(EntityGrouping.class)) {
+            default_types_blacklist.addAll(entityGrouping.getEntityTypes());
+        }
         default_reason_blacklist.addAll(getList("reason-blacklist").asEnumList(CreatureSpawnEvent.SpawnReason.class));
         default_worlds_blacklist.addAll(getList("worlds-blacklist").asWorldList());
 
@@ -253,19 +257,17 @@ public class MainConfig extends SpecialConfigFile {
                 death_priority.put(type, custom_death_priorities);
 
                 for (DeathType defaultDeathOption : custom_death_priorities) {
-                    final Map<DeathType, Set<EntityDamageEvent.DamageCause>> damageCauses = death_reason_blacklist.getOrDefault(type, new EnumMap<>(DeathType.class));
+                    final Map<DeathType, Set<EntityDamageEvent.DamageCause>> damageCauses = death_reason_blacklist.computeIfAbsent(type, unused -> new EnumMap<>(DeathType.class));
                     final Set<EntityDamageEvent.DamageCause> damageCausesSet = EnumSet.noneOf(EntityDamageEvent.DamageCause.class);
                     damageCausesSet.addAll(getList(type, "death." + defaultDeathOption + ".reason-blacklist").asEnumList(EntityDamageEvent.DamageCause.class));
 
                     damageCauses.put(defaultDeathOption, damageCausesSet);
-                    death_reason_blacklist.putIfAbsent(type, damageCauses);
 
-                    final Map<DeathType, Set<CreatureSpawnEvent.SpawnReason>> spawnReasons = spawn_reason_blacklist.getOrDefault(type, new EnumMap<>(DeathType.class));
+                    final Map<DeathType, Set<CreatureSpawnEvent.SpawnReason>> spawnReasons = spawn_reason_blacklist.computeIfAbsent(type, unused -> new EnumMap<>(DeathType.class));
                     final Set<CreatureSpawnEvent.SpawnReason> spawnReasonsSet = EnumSet.noneOf(CreatureSpawnEvent.SpawnReason.class);
                     spawnReasonsSet.addAll(getList(type, "death." + defaultDeathOption + ".spawn-reason-blacklist").asEnumList(CreatureSpawnEvent.SpawnReason.class));
 
                     spawnReasons.put(defaultDeathOption, spawnReasonsSet);
-                    spawn_reason_blacklist.putIfAbsent(type, spawnReasons);
                 }
             }
             final int custom_death_step_max_step = getInt(type, "death.STEP.max-step");
@@ -353,33 +355,30 @@ public class MainConfig extends SpecialConfigFile {
 
 
             for (String key : getConfigurationSection(type, "events.remove-stack-data").getKeys(false)) {
-                final Map<String, Boolean> map = events_remove_stack_data.getOrDefault(type, new Object2BooleanOpenHashMap<>());
+                final Map<String, Boolean> map = events_remove_stack_data.computeIfAbsent(type, unused -> new Object2BooleanOpenHashMap<>());
                 final boolean custom_events_remove_stack_data = getBoolean(type, "events.remove-stack-data." + key);
                 if (custom_events_remove_stack_data != default_events_remove_stack_data.get(key)) {
                     map.put(key, custom_events_remove_stack_data);
-                    events_remove_stack_data.putIfAbsent(type, map);
                 }
             }
             for (String key : getConfigurationSection(type, "events.").getKeys(false)) {
                 if (key.equals("equip")) continue;
-                final Map<String, ListenerMode> mode_map = events_mode.getOrDefault(type, new Object2ObjectOpenHashMap<>());
+                final Map<String, ListenerMode> mode_map = events_mode.computeIfAbsent(type, unused -> new Object2ObjectOpenHashMap<>());
                 final String custom_mode = getString(type, "events." + key + ".mode");
 
                 if (custom_mode != null && !custom_mode.equals(default_events_mode.get(key).toString())) {
                     mode_map.put(key, ListenerMode.valueOf(custom_mode));
-                    events_mode.putIfAbsent(type, mode_map);
                 }
 
                 switch (key) {
                     case "shear":
                     case "breed":
                     case "dye":
-                        final Map<String, Integer> limit_map = events_limit.getOrDefault(type, new Object2IntOpenHashMap<>());
+                        final Map<String, Integer> limit_map = events_limit.computeIfAbsent(type, unused -> new Object2IntOpenHashMap<>());
                         final int custom_limit = getInt(type, "events." + key + ".limit");
 
                         if (custom_limit != default_events_limit.get(key)) {
                             limit_map.put(key, custom_limit);
-                            events_limit.putIfAbsent(type, limit_map);
                         }
                         break;
                     default:
@@ -445,6 +444,10 @@ public class MainConfig extends SpecialConfigFile {
         return getInt("display-name.nearby.interval");
     }
 
+    public boolean isTagNearbyRayTrace() {
+        return default_display_name_nearby_ray_trace;
+    }
+
     public boolean isTraitEnabled(String traitKey) {
         return getBoolean("traits." + traitKey);
     }
@@ -465,11 +468,11 @@ public class MainConfig extends SpecialConfigFile {
         return default_events_multiply_slime_split;
     }
 
-    public boolean isDropTypeBlacklisted(EntityType type) {
+    public boolean isDropTypeBlacklist(EntityType type) {
         return default_drops_type_blacklist.contains(type);
     }
 
-    public boolean isDropReasonBlacklisted(EntityType type, EntityDamageEvent.DamageCause cause) {
+    public boolean isDropReasonBlacklist(EntityType type, EntityDamageEvent.DamageCause cause) {
         return drops_reason_blacklist.getOrDefault(type, default_drops_reason_blacklist).contains(cause);
     }
 
@@ -485,7 +488,7 @@ public class MainConfig extends SpecialConfigFile {
         return experience_enabled.getOrDefault(type, default_experience_enabled);
     }
 
-    public boolean isExpTypeBlacklisted(EntityType type) {
+    public boolean isExpTypeBlacklist(EntityType type) {
         return default_experience_type_blacklist.contains(type);
     }
 
@@ -505,11 +508,11 @@ public class MainConfig extends SpecialConfigFile {
         return wait_to_stack_enabled.getOrDefault(type, default_wait_to_stack_enabled);
     }
 
-    public boolean isWaitingType(EntityType type) {
+    public boolean isWaitingTypes(EntityType type) {
         return default_wait_to_stack_types_whitelist.contains(type);
     }
 
-    public boolean isWaitingReason(EntityType type, CreatureSpawnEvent.SpawnReason reason) {
+    public boolean isWaitingReasons(EntityType type, CreatureSpawnEvent.SpawnReason reason) {
         return wait_to_stack_reasons_whitelist.getOrDefault(type, default_wait_to_stack_reasons_whitelist).contains(reason);
     }
 
@@ -533,11 +536,11 @@ public class MainConfig extends SpecialConfigFile {
         return disable_targeting_enabled.getOrDefault(type, default_disable_targeting_enabled);
     }
 
-    public boolean isTargetingDisabledType(EntityType type) {
+    public boolean isTargetingDisabledTypes(EntityType type) {
         return default_disable_targeting_type_blacklist.contains(type);
     }
 
-    public boolean isTargetingDisabledReason(EntityType type, CreatureSpawnEvent.SpawnReason reason) {
+    public boolean isTargetingDisabledReasons(EntityType type, CreatureSpawnEvent.SpawnReason reason) {
         return disable_targeting_reason_blacklist.getOrDefault(type, default_disable_targeting_reason_blacklist).contains(reason);
     }
 
@@ -548,6 +551,11 @@ public class MainConfig extends SpecialConfigFile {
     public int getEventMultiplyLimit(EntityType type, String eventKey, int stackSize) {
         final int limit = events_limit.getOrDefault(type, default_events_limit).get(eventKey);
         return limit == -1 ? stackSize : Math.min(stackSize, limit);
+    }
+
+    public boolean isEntityBlacklisted(LivingEntity entity) {
+        final CreatureSpawnEvent.SpawnReason reason = Utilities.isPaper() ? entity.getEntitySpawnReason() : CreatureSpawnEvent.SpawnReason.DEFAULT;
+        return isEntityBlacklisted(entity, reason);
     }
 
     public boolean isEntityBlacklisted(LivingEntity entity, CreatureSpawnEvent.SpawnReason reason) {
@@ -612,6 +620,43 @@ public class MainConfig extends SpecialConfigFile {
             return;
         }
         super.updateFile();
+    }
+
+    enum EntityGrouping {
+
+        HOSTILE(Monster.class, Ghast.class, Phantom.class),
+        ANIMALS(Animals.class),
+        WATER(WaterMob.class),
+        RAIDER(Raider.class),
+        BOSS(Boss.class);
+
+        private final Class<? extends Entity>[] classes;
+
+        EntityGrouping(Class<? extends Entity>... classes) {
+            this.classes = classes;
+        }
+
+        public boolean isEntityMemberOf(Class<? extends Entity> entity) {
+            for (Class<? extends Entity> entityClass : classes) {
+                if (entityClass.isAssignableFrom(entity)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public List<EntityType> getEntityTypes() {
+            final List<EntityType> list = new ArrayList<>();
+
+            for (EntityType entityType : EntityType.values()) {
+                if (isEntityMemberOf(entityType.getEntityClass())) {
+                    list.add(entityType);
+                }
+            }
+
+            return list;
+        }
+
     }
 
 }

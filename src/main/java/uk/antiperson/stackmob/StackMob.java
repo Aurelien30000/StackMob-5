@@ -116,6 +116,11 @@ public class StackMob extends JavaPlugin {
             getLogger().warning("StackMob makes use of Paper's API, which means you're missing out on features.");
         }
         new Metrics(this, 522);
+        if (Utilities.isPaper() && getServer().spigot().getPaperConfig().getBoolean("settings.log-named-entity-deaths", false)) {
+            getLogger().warning("The paper.yml option settings.log-named-entity-deaths is enabled." +
+                    " You will get messages in console every time a named mob is killed." +
+                    " You should probably disable this, unless you like console spam?");
+        }
     }
 
     @Override

@@ -34,11 +34,11 @@ public class Drops {
         if (!sm.getMainConfig().isDropMultiEnabled(dead.getType())) {
             return items;
         }
-        if (sm.getMainConfig().isDropTypeBlacklisted(dead.getType())) {
+        if (sm.getMainConfig().isDropTypeBlacklist(dead.getType())) {
             return items;
         }
         final EntityDamageEvent lastDamageCause = dead.getLastDamageCause();
-        if (lastDamageCause == null || sm.getMainConfig().isDropReasonBlacklisted(dead.getType(), lastDamageCause.getCause())) {
+        if (lastDamageCause == null || sm.getMainConfig().isDropReasonBlacklist(dead.getType(), lastDamageCause.getCause())) {
             return items;
         }
         final boolean useLootTables = sm.getMainConfig().isDropLootTables(dead.getType());
@@ -102,7 +102,7 @@ public class Drops {
         if (!sm.getMainConfig().isExpMultiEnabled(dead.getType())) {
             return exp;
         }
-        if (sm.getMainConfig().isExpTypeBlacklisted(dead.getType())) {
+        if (sm.getMainConfig().isExpTypeBlacklist(dead.getType())) {
             return exp;
         }
         double minMulti = sm.getMainConfig().getExpMinBound(dead.getType()) * exp;

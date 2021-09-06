@@ -48,7 +48,12 @@ public class ConfigFile {
     }
 
     public ConfigList getList(String path) {
-        return ConfigList.getConfigList(this, new ConfigValue(path, get(path)));
+        final List<?> list = fileCon.getList(path);
+        if (list == null) {
+            throw new UnsupportedOperationException(path + " list is null!");
+        }
+        final boolean inverted = getBoolean(path + "-invert");
+        return new ConfigList(this, list, path, inverted);
     }
 
     public ConfigurationSection getConfigurationSection(String path) {
@@ -151,8 +156,7 @@ public class ConfigFile {
             return;
         }
         fileCon.options().header(includedConfig.options().header());
-        sm.getLogger().info("Config file " + file.getName() + " has been updated.");
-        sm.getLogger().info("Unfortunately, this means that comments have been removed.");
+        sm.getLogger().warning("Config file " + file.getName() + " has been updated. This means that comments have been removed.");
         sm.getLogger().info("If you need comments, you access a version with them at " + Utilities.GITHUB_DEFAULT_CONFIG);
         save();
     }
