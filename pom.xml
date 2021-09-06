@@ -147,6 +147,12 @@
             <artifactId>Jobs</artifactId>
             <version>LATEST</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
