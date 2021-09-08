@@ -649,7 +649,8 @@ public class MainConfig extends SpecialConfigFile {
             final List<EntityType> list = new ArrayList<>();
 
             for (EntityType entityType : EntityType.values()) {
-                if (isEntityMemberOf(entityType.getEntityClass())) {
+                final Class<? extends Entity> entityClass = entityType.getEntityClass();
+                if (entityClass != null && isEntityMemberOf(entityClass)) {
                     list.add(entityType);
                 }
             }
