@@ -201,7 +201,8 @@ public class MainConfig extends SpecialConfigFile {
             default_events_remove_stack_data.put(key, getBoolean("events.remove-stack-data." + key));
         }
         for (String key : getConfigurationSection("events.").getKeys(false)) {
-            if (key.equals("equip")) continue;
+            if (key.equals("equip"))
+                continue;
             final String mode = getString("events." + key + ".mode");
 
             if (mode != null) {
@@ -355,30 +356,35 @@ public class MainConfig extends SpecialConfigFile {
 
 
             for (String key : getConfigurationSection(type, "events.remove-stack-data").getKeys(false)) {
-                final Map<String, Boolean> map = events_remove_stack_data.computeIfAbsent(type, unused -> new Object2BooleanOpenHashMap<>());
+                final Map<String, Boolean> map = events_remove_stack_data.getOrDefault(type, new Object2BooleanOpenHashMap<>());
                 final boolean custom_events_remove_stack_data = getBoolean(type, "events.remove-stack-data." + key);
+
                 if (custom_events_remove_stack_data != default_events_remove_stack_data.get(key)) {
                     map.put(key, custom_events_remove_stack_data);
+                    events_remove_stack_data.putIfAbsent(type, map);
                 }
             }
             for (String key : getConfigurationSection(type, "events.").getKeys(false)) {
-                if (key.equals("equip")) continue;
-                final Map<String, ListenerMode> mode_map = events_mode.computeIfAbsent(type, unused -> new Object2ObjectOpenHashMap<>());
+                if (key.equals("equip"))
+                    continue;
+                final Map<String, ListenerMode> mode_map = events_mode.getOrDefault(type, new Object2ObjectOpenHashMap<>());
                 final String custom_mode = getString(type, "events." + key + ".mode");
 
                 if (custom_mode != null && !custom_mode.equals(default_events_mode.get(key).toString())) {
                     mode_map.put(key, ListenerMode.valueOf(custom_mode));
+                    events_mode.putIfAbsent(type, mode_map);
                 }
 
                 switch (key) {
                     case "shear":
                     case "breed":
                     case "dye":
-                        final Map<String, Integer> limit_map = events_limit.computeIfAbsent(type, unused -> new Object2IntOpenHashMap<>());
+                        final Map<String, Integer> limit_map = events_limit.getOrDefault(type, new Object2IntOpenHashMap<>());
                         final int custom_limit = getInt(type, "events." + key + ".limit");
 
                         if (custom_limit != default_events_limit.get(key)) {
                             limit_map.put(key, custom_limit);
+                            events_limit.putIfAbsent(type, limit_map);
                         }
                         break;
                     default:
@@ -593,7 +599,8 @@ public class MainConfig extends SpecialConfigFile {
             }
         } else {
             for (String key : getConfigurationSection(type, "death").getKeys(false)) {
-                if (!key.toUpperCase().equals(key)) continue;
+                if (!key.toUpperCase().equals(key))
+                    continue;
 
                 final DeathType deathType = DeathType.valueOf(key);
                 array.put(getInt(type, "death." + deathType + ".priority"), deathType);

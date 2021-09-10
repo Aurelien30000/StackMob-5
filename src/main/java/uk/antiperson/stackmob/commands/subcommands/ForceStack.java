@@ -5,10 +5,8 @@ import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Tameable;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.commands.*;
-import uk.antiperson.stackmob.utils.Utilities;
 
 import java.util.Arrays;
 import java.util.function.Predicate;

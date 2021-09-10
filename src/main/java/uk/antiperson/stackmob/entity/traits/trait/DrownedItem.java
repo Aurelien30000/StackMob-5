@@ -18,8 +18,10 @@ public class DrownedItem implements Trait {
         Drowned nearDrowned = (Drowned) nearby;
         EntityEquipment oriEquipment = oriDrowned.getEquipment();
         EntityEquipment nearEquipment = nearDrowned.getEquipment();
-        if (oriEquipment == null && nearEquipment == null) return true;
-        if (oriEquipment == null || nearEquipment == null) return false;
+        if (oriEquipment == null && nearEquipment == null)
+            return true;
+        if (oriEquipment == null || nearEquipment == null)
+            return false;
         for (EquipmentSlot equipmentSlot : Utilities.HAND_SLOTS) {
             ItemStack oriItemStack = oriEquipment.getItem(equipmentSlot);
             ItemStack nearItemStack = nearEquipment.getItem(equipmentSlot);

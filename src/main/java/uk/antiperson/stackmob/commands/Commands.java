@@ -104,7 +104,8 @@ public class Commands implements CommandExecutor, TabCompleter {
             CommandArgument argument = argumentTypes[i];
             switch (argument.getType()) {
                 case BOOLEAN:
-                    if (!(args[i].equals("true") || args[i + 1].equals("false"))) return false;
+                    if (!(args[i].equals("true") || args[i + 1].equals("false")))
+                        return false;
                     break;
                 case INTEGER:
                     try {
