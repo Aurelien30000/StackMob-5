@@ -376,9 +376,10 @@ public class MainConfig extends SpecialConfigFile {
                 }
 
                 switch (key) {
-                    case "shear":
                     case "breed":
                     case "dye":
+					case "shear":
+					case "explosion":
                         final Map<String, Integer> limit_map = events_limit.getOrDefault(type, new Object2IntOpenHashMap<>());
                         final int custom_limit = getInt(type, "events." + key + ".limit");
 
