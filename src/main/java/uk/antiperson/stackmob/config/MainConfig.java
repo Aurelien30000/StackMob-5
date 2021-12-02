@@ -2,7 +2,7 @@ package uk.antiperson.stackmob.config;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;

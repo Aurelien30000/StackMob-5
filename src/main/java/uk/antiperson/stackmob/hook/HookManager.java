@@ -1,7 +1,7 @@
 package uk.antiperson.stackmob.hook;
 
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Listener;
 import uk.antiperson.stackmob.StackMob;

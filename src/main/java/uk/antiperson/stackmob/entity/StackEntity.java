@@ -5,7 +5,7 @@ import org.apache.commons.lang.WordUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -510,7 +510,7 @@ public class StackEntity {
         }
 
         public void sendPacket(Player player, boolean tagVisible) {
-            if (!Utilities.isNativeVersion()) {
+            if (!Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_18_R1)) {
                 ProtocolLibHook protocolLibHook = sm.getHookManager().getProtocolLibHook();
                 if (protocolLibHook == null) {
                     return;

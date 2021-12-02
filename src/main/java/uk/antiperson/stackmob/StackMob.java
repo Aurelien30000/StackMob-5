@@ -93,7 +93,7 @@ public class StackMob extends JavaPlugin {
         new MergeTask(this).runTaskTimer(this, 5, stackInterval);
         final int tagInterval = getMainConfig().getTagNearbyInterval();
         new TagTask(this).runTaskTimer(this, 10, tagInterval);
-        if (!Utilities.isNativeVersion() && getHookManager().getProtocolLibHook() == null) {
+        if (!Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_18_R1) && getHookManager().getProtocolLibHook() == null) {
             getLogger().warning("You are not running the plugins native version and ProtocolLib could not be found (or has been disabled).");
             getLogger().warning("The display name visibility setting 'NEARBY' will not work unless this is fixed.");
         }
@@ -116,11 +116,6 @@ public class StackMob extends JavaPlugin {
             getLogger().warning("StackMob makes use of Paper's API, which means you're missing out on features.");
         }
         new Metrics(this, 522);
-        if (Utilities.isPaper() && getServer().spigot().getPaperConfig().getBoolean("settings.log-named-entity-deaths", false)) {
-            getLogger().warning("The paper.yml option settings.log-named-entity-deaths is enabled." +
-                    " You will get messages in console every time a named mob is killed." +
-                    " You should probably disable this, unless you like console spam?");
-        }
     }
 
     @Override
