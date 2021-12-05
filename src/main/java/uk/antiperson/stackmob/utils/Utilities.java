@@ -32,8 +32,19 @@ public class Utilities {
     public static final List<Material> DROWNED_MATERIALS = Arrays.asList(Material.NAUTILUS_SHELL, Material.TRIDENT);
     public static final List<EquipmentSlot> HAND_SLOTS = Arrays.asList(EquipmentSlot.HAND, EquipmentSlot.OFF_HAND);
 
-    private static final boolean usingPaper = ClassLoader.getSystemClassLoader().getDefinedPackage("com.destroystokyo.paper") != null;
+    private static final boolean usingPaper;
     private static MinecraftVersion minecraftVersion;
+    
+    static {
+        boolean usingPaper1;
+        try {
+            Bukkit.spigot().getClass().getMethod("getPaperConfig");
+            usingPaper1 = true;
+        } catch (NoSuchMethodException e) {
+            usingPaper1 = false;
+        }
+        usingPaper = usingPaper1;
+    }
 
     public static String translateColorCodes(String toTranslate) {
         Matcher matcher = hexPattern.matcher(toTranslate);
