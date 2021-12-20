@@ -22,11 +22,12 @@ public class TransformListener implements Listener {
                 event.getTransformReason() == EntityTransformEvent.TransformReason.SPLIT) {
             return;
         }
-        if (!sm.getEntityManager().isStackedEntity(((LivingEntity) event.getEntity()))) {
-            return;
-        }
         final StackEntity stackEntity = sm.getEntityManager().getStackEntity((LivingEntity) event.getEntity());
         final StackEntity transformed = sm.getEntityManager().registerStackedEntity((LivingEntity) event.getTransformedEntity());
+        if (stackEntity == null) {
+            transformed.setForgetOnSpawn(true);
+            return;
+        }
         transformed.setSize(stackEntity.getSize());
         stackEntity.remove();
     }

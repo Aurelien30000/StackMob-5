@@ -76,7 +76,9 @@ public class StackEntity {
         entity.getPersistentDataContainer().remove(sm.getStackKey());
         entity.setCustomNameVisible(false);
         entityManager.unregisterStackedEntity(this);
-        getTag().update();
+        if (!isSingle()) {
+            getTag().update();
+        }
     }
 
     /**
