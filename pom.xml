@@ -102,6 +102,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>papermc</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -157,7 +161,7 @@
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>4.7.0</version>
+            <version>4.8.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
