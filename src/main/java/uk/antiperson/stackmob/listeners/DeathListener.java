@@ -4,6 +4,7 @@ import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -15,6 +16,7 @@ import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.entity.death.DeathMethod;
 import uk.antiperson.stackmob.entity.death.DeathType;
 import uk.antiperson.stackmob.events.EventHelper;
+import uk.antiperson.stackmob.utils.NMSHelper;
 import uk.antiperson.stackmob.utils.Utilities;
 
 import java.lang.reflect.InvocationTargetException;
@@ -66,6 +68,10 @@ public class DeathListener implements Listener {
         if (Utilities.isPaper() && event.isCancelled()) {
             final ExperienceOrb orb = (ExperienceOrb) event.getEntity().getWorld().spawnEntity(event.getEntity().getLocation(), EntityType.EXPERIENCE_ORB);
             orb.setExperience(experience);
+
+            if (Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_18_R1) && event.getEntity() instanceof final Zombie zombie && !zombie.isAdult()) {
+                NMSHelper.resetBabyZombieExp(zombie);
+            }
         } else {
             event.setDroppedExp(experience);
         }
