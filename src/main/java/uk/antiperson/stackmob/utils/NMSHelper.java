@@ -7,6 +7,7 @@ import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.world.entity.EntityInsentient;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftZombie;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
@@ -36,7 +37,7 @@ public class NMSHelper {
 
     public static void resetBabyZombieExp(Zombie zombie) {
         try {
-            XP_REWARD.set(zombie, 5);
+            XP_REWARD.set(((CraftZombie) zombie).getHandle(), 5);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
