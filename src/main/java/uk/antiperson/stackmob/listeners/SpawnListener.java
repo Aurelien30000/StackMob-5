@@ -29,14 +29,14 @@ public class SpawnListener implements Listener {
             if (!eventEntity.isValid()) {
                 return;
             }
-            if (sm.getMainConfig().isEntityBlacklisted(eventEntity, event.getSpawnReason())) {
-                return;
-            }
             if (sm.getEntityManager().isStackedEntity(eventEntity)) {
                 final StackEntity stackEntity = sm.getEntityManager().getStackEntity(event.getEntity());
                 if (stackEntity != null && stackEntity.isForgetOnSpawn()) {
                     stackEntity.removeStackData();
                 }
+                return;
+            }
+            if (sm.getMainConfig().isEntityBlacklisted(eventEntity, event.getSpawnReason())) {
                 return;
             }
             if (EventHelper.callStackSpawnEvent(eventEntity).isCancelled()) {
