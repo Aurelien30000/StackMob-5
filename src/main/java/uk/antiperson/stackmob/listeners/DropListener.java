@@ -1,6 +1,7 @@
 package uk.antiperson.stackmob.listeners;
 
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,7 +24,9 @@ public class DropListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDropListener(EntityDropItemEvent event) {
-        if (event.getItemDrop().getItemStack().getType() != Material.EGG && event.getItemDrop().getItemStack().getType() != Material.SCUTE) {
+        if (event.getEntity() != EntityType.VILLAGER &&
+                event.getItemDrop().getItemStack().getType() != Material.EGG &&
+                event.getItemDrop().getItemStack().getType() != Material.SCUTE) {
             return;
         }
         if (!sm.getEntityManager().isStackedEntity((LivingEntity) event.getEntity())) {
