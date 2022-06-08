@@ -62,8 +62,7 @@ public class BreedInteractListener implements Listener {
         Utilities.removeHandItem(player, parentAmount);
         stackEntity.getDrops().dropExperience(event.getRightClicked().getLocation(), 1, 7, kidAmount);
         // Spawn the kid
-        final StackEntity kid = stackEntity.duplicate(kidAmount);
-        ((Animals) kid.getEntity()).setBaby();
+        stackEntity.spawnChild(kidAmount);
         // Update the adult
         animals.setBreed(false);
         animals.setBreedCause(player.getUniqueId());

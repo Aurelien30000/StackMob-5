@@ -103,6 +103,7 @@ traits:
   aware: true
   # Prevent pregnant turtles from stacking. (**)
   has-egg: true
+  frog-variant: true
 
 # Prevent stacked mobs from targeting players.
 # Similar to no-ai, but allows for movement of entities.

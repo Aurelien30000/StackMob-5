@@ -107,7 +107,7 @@ public class MergeTask extends BukkitRunnable {
                 for (int stackSize : Utilities.split(size - toCompleteStack, original.getMaxSize())) {
                     original.duplicate(stackSize);
                 }
-                return;
+                continue;
             }
             original.incrementSize(size);
         }

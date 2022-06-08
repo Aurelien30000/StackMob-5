@@ -1,11 +1,13 @@
 package uk.antiperson.stackmob.entity;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -363,6 +365,28 @@ public class StackEntity {
         final LivingEntity clone = spawnClone();
         final StackEntity cloneStack = sm.getEntityManager().registerStackedEntity(clone);
         cloneStack.setSize(amount);
+        duplicateTraits(cloneStack);
+        return cloneStack;
+    }
+
+    public void spawnChild(int kidAmount) {
+        // Spawn the kid
+        StackEntity kid;
+        if (Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_19_R1) && getEntity().getType() == EntityType.valueOf("FROG")) {
+            // tadpoles and frogs are separate entities
+            LivingEntity tadpole = spawn(EntityType.valueOf("TADPOLE"));
+            kid = sm.getEntityManager().registerStackedEntity(tadpole);
+            kid.setSize(1);
+            duplicateTraits(kid);
+        } else {
+            kid = duplicate(1);
+            ((Animals) kid.getEntity()).setBaby();
+        }
+        kid.setSize(kidAmount);
+    }
+
+    private void duplicateTraits(StackEntity cloneStack) {
+        LivingEntity clone = cloneStack.getEntity();
         sm.getTraitManager().applyTraits(cloneStack, this);
         sm.getHookManager().onSpawn(cloneStack);
         if (Utilities.isPaper()) {
@@ -381,7 +405,6 @@ public class StackEntity {
                 }
             }
         }
-        return cloneStack;
     }
 
     private LivingEntity spawnClone() {
@@ -389,10 +412,14 @@ public class StackEntity {
         if (entity != null) {
             return entity;
         }
+        return spawn(getEntity().getType());
+    }
+
+    private LivingEntity spawn(EntityType entityType) {
         if (Utilities.isPaper()) {
-            return (LivingEntity) getWorld().spawnEntity(getEntity().getLocation(), getEntity().getType(), getEntity().getEntitySpawnReason());
+            return (LivingEntity) getWorld().spawnEntity(getEntity().getLocation(), entityType, getEntity().getEntitySpawnReason());
         }
-        return (LivingEntity) getWorld().spawnEntity(getEntity().getLocation(), getEntity().getType());
+        return (LivingEntity) getWorld().spawnEntity(getEntity().getLocation(), entityType);
     }
 
     public boolean isSingle() {
@@ -512,7 +539,7 @@ public class StackEntity {
         }
 
         public void sendPacket(Player player, boolean tagVisible) {
-            if (!Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_18_R2)) {
+            if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION) {
                 ProtocolLibHook protocolLibHook = sm.getHookManager().getProtocolLibHook();
                 if (protocolLibHook == null) {
                     return;
