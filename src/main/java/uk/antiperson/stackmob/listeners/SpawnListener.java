@@ -21,9 +21,6 @@ public class SpawnListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSpawn(CreatureSpawnEvent event) {
-        if (!(event.getEntity() instanceof Mob)) {
-            return;
-        }
         sm.getServer().getScheduler().runTask(sm, () -> {
             final LivingEntity eventEntity = event.getEntity();
             if (!eventEntity.isValid()) {
