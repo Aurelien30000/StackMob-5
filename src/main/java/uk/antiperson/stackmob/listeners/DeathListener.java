@@ -3,6 +3,7 @@ package uk.antiperson.stackmob.listeners;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,7 +31,8 @@ public class DeathListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onStackDeath(EntityDeathEvent event) {
-        final StackEntity stackEntity = sm.getEntityManager().getStackEntity(event.getEntity());
+        final LivingEntity entity = event.getEntity();
+        final StackEntity stackEntity = sm.getEntityManager().getStackEntity(entity);
         if (stackEntity == null) {
             return;
         }
@@ -38,12 +40,13 @@ public class DeathListener implements Listener {
         final int deathStep = EventHelper.callStackDeathEvent(stackEntity, Math.min(stackEntity.getSize(), deathMethod.calculateStep())).getDeathStep();
         int toMultiply = deathStep - 1;
         if (sm.getMainConfig().getBoolean("traits.leashed")) {
-            if (event.getEntity().isLeashed() && (stackEntity.getSize() - deathStep) != 0) {
-                event.getEntity().setMetadata(Utilities.NO_LEASH_METADATA, new FixedMetadataValue(sm, true));
+            if (entity.isLeashed() && (stackEntity.getSize() - deathStep) != 0) {
+                entity.setMetadata(Utilities.NO_LEASH_METADATA, new FixedMetadataValue(sm, true));
             }
         }
+        boolean isSkipDeathAnimation = sm.getMainConfig().isSkipDeathAnimation(event.getEntityType());
         if (deathStep < stackEntity.getSize()) {
-            if (sm.getMainConfig().isSkipDeathAnimation(event.getEntityType())) {
+            if (isSkipDeathAnimation) {
                 toMultiply = deathStep;
                 event.setCancelled(true);
                 stackEntity.incrementSize(-deathStep);
@@ -61,21 +64,21 @@ public class DeathListener implements Listener {
         }
         final Drops drop = stackEntity.getDrops();
         final int experience = drop.calculateDeathExperience(toMultiply, event.getDroppedExp());
-        final Map<ItemStack, Integer> drops = drop.calculateDrops(toMultiply, event.getDrops());
-        Drops.dropItems(event.getEntity().getLocation(), drops);
-        if (Utilities.isPaper() && event.isCancelled()) {
-            final ExperienceOrb orb = (ExperienceOrb) event.getEntity().getWorld().spawnEntity(event.getEntity().getLocation(), EntityType.EXPERIENCE_ORB);
+        final Map<ItemStack, Integer> drops = drop.calculateDrops(toMultiply, event.getDrops(), isSkipDeathAnimation);
+        Drops.dropItems(entity.getLocation(), drops);
+        if (isSkipDeathAnimation && Utilities.isPaper()) {
+            final ExperienceOrb orb = (ExperienceOrb) entity.getWorld().spawnEntity(entity.getLocation(), EntityType.EXPERIENCE_ORB);
             orb.setExperience(experience);
         } else {
             event.setDroppedExp(experience);
         }
         if (sm.getMainConfig().isPlayerStatMulti(event.getEntityType())) {
-            if (event.getEntity().getKiller() != null) {
-                event.getEntity().getKiller().incrementStatistic(Statistic.KILL_ENTITY, event.getEntityType(), toMultiply);
+            if (entity.getKiller() != null) {
+                entity.getKiller().incrementStatistic(Statistic.KILL_ENTITY, event.getEntityType(), toMultiply);
             }
         }
-        if (event.getEntity() instanceof Slime && sm.getMainConfig().isSlimeMultiEnabled()) {
-            event.getEntity().setMetadata("deathcount", new FixedMetadataValue(sm, toMultiply));
+        if (entity instanceof Slime && sm.getMainConfig().isSlimeMultiEnabled()) {
+            entity.setMetadata("deathcount", new FixedMetadataValue(sm, toMultiply));
         }
     }
 
@@ -83,7 +86,8 @@ public class DeathListener implements Listener {
         final DeathType deathType = sm.getMainConfig().getDeathType(entity.getEntity());
         try {
             return deathType.getStepClass().getDeclaredConstructor(StackMob.class, StackEntity.class).newInstance(sm, entity);
-        } catch (InstantiationException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (InstantiationException | InvocationTargetException | IllegalAccessException |
+                 NoSuchMethodException e) {
             throw new RuntimeException("Error while determining death step!");
         }
     }

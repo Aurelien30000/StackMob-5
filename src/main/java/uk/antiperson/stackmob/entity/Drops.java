@@ -12,6 +12,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import uk.antiperson.stackmob.StackMob;
+import uk.antiperson.stackmob.utils.NMSHelper;
 import uk.antiperson.stackmob.utils.Utilities;
 
 import java.util.Collection;
@@ -21,15 +22,15 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Drops {
 
-    private final LivingEntity dead;
     private final StackMob sm;
+    private final LivingEntity dead;
 
     public Drops(StackMob sm, StackEntity entity) {
         this.sm = sm;
         this.dead = entity.getEntity();
     }
 
-    public Map<ItemStack, Integer> calculateDrops(int deathAmount, List<ItemStack> originalDrops) {
+    public Map<ItemStack, Integer> calculateDrops(int deathAmount, List<ItemStack> originalDrops, boolean skipDeathAnimation) {
         final Object2IntMap<ItemStack> items = new Object2IntOpenHashMap<>();
         if (!sm.getMainConfig().isDropMultiEnabled(dead.getType())) {
             return items;
@@ -66,6 +67,15 @@ public class Drops {
                 items.mergeInt(is, dropAmount, Integer::sum);
             }
         }
+
+        // Special case with death skip animation and a Wither kill. This handles/fixes wither rose dropping everytime.
+        if (skipDeathAnimation
+                && Utilities.getMinecraftVersion() == Utilities.NMS_VERSION
+                && NMSHelper.canCreateWitherRose(dead)) {
+            // Simulates LivingEntity#createWitherRose, deathAmount times.
+            items.put(new ItemStack(Material.WITHER_ROSE), deathAmount);
+        }
+
         return items;
     }
 

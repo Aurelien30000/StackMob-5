@@ -94,7 +94,7 @@ public class StackMob extends JavaPlugin {
         final int tagInterval = getMainConfig().getTagNearbyInterval();
         new TagTask(this).runTaskTimer(this, 10, tagInterval);
         if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION && getHookManager().getProtocolLibHook() == null) {
-            getLogger().warning("You are not running the plugins native version and ProtocolLib could not be found (or has been disabled).");
+            getLogger().warning("You are not running the plugin's native version and ProtocolLib could not be found (or has been disabled).");
             getLogger().warning("The display name visibility setting 'NEARBY' will not work unless this is fixed.");
         }
         getEntityManager().registerAllEntities();
