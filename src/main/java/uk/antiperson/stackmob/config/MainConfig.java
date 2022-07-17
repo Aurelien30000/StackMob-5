@@ -1,15 +1,15 @@
 package uk.antiperson.stackmob.config;
 
+import it.unimi.dsi.fastutil.objects.*;
 import org.bukkit.Material;
 import org.bukkit.World;
-import it.unimi.dsi.fastutil.objects.*;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.entity.death.DeathType;
-import uk.antiperson.stackmob.listeners.ListenerMode;
 import uk.antiperson.stackmob.utils.Utilities;
 
 import java.io.IOException;
@@ -39,6 +39,7 @@ public class MainConfig extends SpecialConfigFile {
     private int default_display_name_threshold;
     private boolean default_display_name_nearby_ray_trace;
     private final Map<EntityType, Integer> display_name_threshold = new EnumMap<>(EntityType.class);
+    private boolean default_display_name_nearby_use_armorstand;
 
 
     private boolean default_death_skip_animation;
@@ -107,8 +108,8 @@ public class MainConfig extends SpecialConfigFile {
 
     private final Map<String, Boolean> default_events_remove_stack_data = new Object2BooleanOpenHashMap<>();
     private final Map<EntityType, Map<String, Boolean>> events_remove_stack_data = new EnumMap<>(EntityType.class);
-    private final Map<String, ListenerMode> default_events_mode = new Object2ObjectOpenHashMap<>();
-    private final Map<EntityType, Map<String, ListenerMode>> events_mode = new EnumMap<>(EntityType.class);
+    private final Map<String, EntityConfig.ListenerMode> default_events_mode = new Object2ObjectOpenHashMap<>();
+    private final Map<EntityType, Map<String, EntityConfig.ListenerMode>> events_mode = new EnumMap<>(EntityType.class);
     private final Map<String, Integer> default_events_limit = new Object2IntOpenHashMap<>();
     private final Map<EntityType, Map<String, Integer>> events_limit = new EnumMap<>(EntityType.class);
     private StackEntity.EquipItemMode default_events_equip_mode;
@@ -139,6 +140,7 @@ public class MainConfig extends SpecialConfigFile {
         default_display_name_nearby_range = getList("display-name.nearby.range").asIntList().toArray(new Integer[2]);
         default_display_name_threshold = getInt("display-name.threshold");
         default_display_name_nearby_ray_trace = getBoolean("display-name.nearby.ray-trace");
+        default_display_name_nearby_use_armorstand = getBoolean("display-name.nearby.use-armorstand");
 
 
         default_death_skip_animation = getBoolean("death.skip-animation");
@@ -147,7 +149,7 @@ public class MainConfig extends SpecialConfigFile {
         for (DeathType defaultDeathOption : death_priorities) {
             final Set<EntityType> entityTypes = default_death_type_blacklist.computeIfAbsent(defaultDeathOption, unused -> EnumSet.noneOf(EntityType.class));
             entityTypes.addAll(getList("death." + defaultDeathOption + ".type-blacklist").asEnumList(EntityType.class));
-            for (EntityGrouping entityGrouping : getList("death." + defaultDeathOption + ".type-blacklist").asEnumList(EntityGrouping.class)) {
+            for (EntityConfig.EntityGrouping entityGrouping : getList("death." + defaultDeathOption + ".type-blacklist").asEnumList(EntityConfig.EntityGrouping.class)) {
                 entityTypes.addAll(entityGrouping.getEntityTypes());
             }
 
@@ -190,7 +192,7 @@ public class MainConfig extends SpecialConfigFile {
 
 
         default_types_blacklist.addAll(getList("types-blacklist").asEnumList(EntityType.class));
-        for (EntityGrouping entityGrouping : getList("types-blacklist").asEnumList(EntityGrouping.class)) {
+        for (EntityConfig.EntityGrouping entityGrouping : getList("types-blacklist").asEnumList(EntityConfig.EntityGrouping.class)) {
             default_types_blacklist.addAll(entityGrouping.getEntityTypes());
         }
         default_reason_blacklist.addAll(getList("reason-blacklist").asEnumList(CreatureSpawnEvent.SpawnReason.class));
@@ -206,7 +208,7 @@ public class MainConfig extends SpecialConfigFile {
             final String mode = getString("events." + key + ".mode");
 
             if (mode != null) {
-                default_events_mode.put(key, ListenerMode.valueOf(mode));
+                default_events_mode.put(key, EntityConfig.ListenerMode.valueOf(mode));
                 default_events_limit.put(key, getInt("events." + key + ".limit"));
             }
         }
@@ -367,29 +369,25 @@ public class MainConfig extends SpecialConfigFile {
             for (String key : getConfigurationSection(type, "events.").getKeys(false)) {
                 if (key.equals("equip"))
                     continue;
-                final Map<String, ListenerMode> mode_map = events_mode.getOrDefault(type, new Object2ObjectOpenHashMap<>());
+                final Map<String, EntityConfig.ListenerMode> mode_map = events_mode.getOrDefault(type, new Object2ObjectOpenHashMap<>());
                 final String custom_mode = getString(type, "events." + key + ".mode");
 
                 if (custom_mode != null && !custom_mode.equals(default_events_mode.get(key).toString())) {
-                    mode_map.put(key, ListenerMode.valueOf(custom_mode));
+                    mode_map.put(key, EntityConfig.ListenerMode.valueOf(custom_mode));
                     events_mode.putIfAbsent(type, mode_map);
                 }
 
                 switch (key) {
-                    case "breed":
-                    case "dye":
-					case "shear":
-					case "explosion":
+                    case "breed", "dye", "shear", "explosion" -> {
                         final Map<String, Integer> limit_map = events_limit.getOrDefault(type, new Object2IntOpenHashMap<>());
                         final int custom_limit = getInt(type, "events." + key + ".limit");
-
                         if (custom_limit != default_events_limit.get(key)) {
                             limit_map.put(key, custom_limit);
                             events_limit.putIfAbsent(type, limit_map);
                         }
-                        break;
-                    default:
-                        break;
+                    }
+                    default -> {
+                    }
                 }
             }
             final String custom_events_equip_mode = getString(type, "events.equip.mode");
@@ -453,6 +451,10 @@ public class MainConfig extends SpecialConfigFile {
 
     public boolean isTagNearbyRayTrace() {
         return default_display_name_nearby_ray_trace;
+    }
+
+    public boolean isTagNearbyUseArmorstand() {
+        return default_display_name_nearby_use_armorstand;
     }
 
     public boolean isTraitEnabled(String traitKey) {
@@ -551,8 +553,8 @@ public class MainConfig extends SpecialConfigFile {
         return disable_targeting_reason_blacklist.getOrDefault(type, default_disable_targeting_reason_blacklist).contains(reason);
     }
 
-    public ListenerMode getListenerMode(EntityType type, String eventKey) {
-        return events_mode.getOrDefault(type, default_events_mode).get(eventKey);
+    public EntityConfig.ListenerMode getListenerMode(EntityType type, EntityConfig.EventType eventType) {
+        return events_mode.getOrDefault(type, default_events_mode).get(eventType.getConfigKey());
     }
 
     public int getEventMultiplyLimit(EntityType type, String eventKey, int stackSize) {
@@ -628,44 +630,6 @@ public class MainConfig extends SpecialConfigFile {
             return;
         }
         super.updateFile();
-    }
-
-    enum EntityGrouping {
-
-        HOSTILE(Monster.class, Ghast.class, Phantom.class),
-        ANIMALS(Animals.class),
-        WATER(WaterMob.class),
-        RAIDER(Raider.class),
-        BOSS(Boss.class);
-
-        private final Class<? extends Entity>[] classes;
-
-        EntityGrouping(Class<? extends Entity>... classes) {
-            this.classes = classes;
-        }
-
-        public boolean isEntityMemberOf(Class<? extends Entity> entity) {
-            for (Class<? extends Entity> entityClass : classes) {
-                if (entityClass.isAssignableFrom(entity)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public List<EntityType> getEntityTypes() {
-            final List<EntityType> list = new ArrayList<>();
-
-            for (EntityType entityType : EntityType.values()) {
-                final Class<? extends Entity> entityClass = entityType.getEntityClass();
-                if (entityClass != null && isEntityMemberOf(entityClass)) {
-                    list.add(entityType);
-                }
-            }
-
-            return list;
-        }
-
     }
 
 }

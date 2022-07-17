@@ -1,7 +1,7 @@
 package uk.antiperson.stackmob.hook;
 
-import org.bukkit.Location;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Listener;
 import uk.antiperson.stackmob.StackMob;
@@ -113,18 +113,15 @@ public class HookManager {
      */
     public boolean checkHooks(StackEntity first, StackEntity nearby) {
         for (Hook hook : hooks) {
-            if (hook instanceof ProtectionHook) {
-                ProtectionHook ph = (ProtectionHook) hook;
+            if (hook instanceof ProtectionHook ph) {
                 if (!ph.canStack(first.getEntity()) || !ph.canStack(nearby.getEntity())) {
                     return true;
                 }
-            } else if (hook instanceof SegregatedMobHook) {
-                SegregatedMobHook smh = (SegregatedMobHook) hook;
+            } else if (hook instanceof SegregatedMobHook smh) {
                 if (smh.isCustomMob(first.getEntity()) || smh.isCustomMob(nearby.getEntity())) {
                     return true;
                 }
-            } else if (hook instanceof StackableMobHook) {
-                StackableMobHook smh = (StackableMobHook) hook;
+            } else if (hook instanceof StackableMobHook smh) {
                 if (smh.isCustomMob(first.getEntity()) && smh.isCustomMob(nearby.getEntity())) {
                     if (!smh.isMatching(first.getEntity(), nearby.getEntity())) {
                         return true;
@@ -137,8 +134,7 @@ public class HookManager {
 
     public void onSpawn(StackEntity entity) {
         for (Hook hook : hooks) {
-            if (hook instanceof SpawnHook) {
-                SpawnHook spawnHook = (SpawnHook) hook;
+            if (hook instanceof SpawnHook spawnHook) {
                 spawnHook.onSpawn(entity.getEntity());
             }
         }
@@ -160,8 +156,7 @@ public class HookManager {
      */
     public StackableMobHook getApplicableHook(StackEntity entity) {
         for (Hook hook : hooks) {
-            if (hook instanceof StackableMobHook) {
-                StackableMobHook smh = (StackableMobHook) hook;
+            if (hook instanceof StackableMobHook smh) {
                 if (smh.isCustomMob(entity.getEntity())) {
                     return smh;
                 }

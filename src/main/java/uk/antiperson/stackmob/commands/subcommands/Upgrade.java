@@ -19,13 +19,11 @@ public class Upgrade extends SubCommand {
         sender.sendInfo("Starting download. Please wait...");
         sm.getUpdater().downloadUpdate().whenComplete((downloadResult, throwable) -> {
             switch (downloadResult) {
-                case ERROR:
-                    sender.sendError("An error occurred while checking for updates.");
-                    break;
-                case SUCCESSFUL:
+                case ERROR -> sender.sendError("An error occurred while downloading the update.");
+                case SUCCESSFUL -> {
                     sender.sendSuccess("The new update was downloaded successfully!");
                     sender.sendInfo("To apply this update, make sure to restart your server.");
-                    break;
+                }
             }
         });
         return false;

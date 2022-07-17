@@ -19,16 +19,12 @@ public class CheckUpdate extends SubCommand {
         sender.sendInfo("Contacting SpigotMC. Please wait...");
         sm.getUpdater().checkUpdate().whenComplete((updateResult, throwable) -> {
             switch (updateResult.getResult()) {
-                case ERROR:
-                    sender.sendError("An error occurred while checking for updates.");
-                    break;
-                case NONE:
-                    sender.sendInfo("There are no updates currently available.");
-                    break;
-                case AVAILABLE:
+                case ERROR -> sender.sendError("An error occurred while checking for updates.");
+                case NONE -> sender.sendInfo("There are no updates currently available.");
+                case AVAILABLE -> {
                     sender.sendSuccess("A new update (" + updateResult.getNewVersion() + ") is currently available!");
                     sender.sendSuccess("This can be downloaded using the command '/sm upgrade'");
-                    break;
+                }
             }
         });
         return false;

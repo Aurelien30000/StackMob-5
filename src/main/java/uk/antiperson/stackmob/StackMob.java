@@ -1,6 +1,7 @@
 package uk.antiperson.stackmob;
 
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
@@ -14,8 +15,10 @@ import uk.antiperson.stackmob.entity.EntityManager;
 import uk.antiperson.stackmob.entity.traits.TraitManager;
 import uk.antiperson.stackmob.hook.HookManager;
 import uk.antiperson.stackmob.listeners.*;
+import uk.antiperson.stackmob.packets.PlayerManager;
 import uk.antiperson.stackmob.tasks.MergeTask;
-import uk.antiperson.stackmob.tasks.TagTask;
+import uk.antiperson.stackmob.tasks.TagCheckTask;
+import uk.antiperson.stackmob.tasks.TagMoveTask;
 import uk.antiperson.stackmob.utils.ItemTools;
 import uk.antiperson.stackmob.utils.Updater;
 import uk.antiperson.stackmob.utils.Utilities;
@@ -39,6 +42,7 @@ public class StackMob extends JavaPlugin {
     private EntityManager entityManager;
     private Updater updater;
     private ItemTools itemTools;
+    private PlayerManager playerManager;
 
     @Override
     public void onLoad() {
@@ -46,7 +50,8 @@ public class StackMob extends JavaPlugin {
         hookManager = new HookManager(this);
         try {
             hookManager.registerOnLoad();
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                 InvocationTargetException e) {
             getLogger().log(Level.SEVERE, "There was a problem registering hooks. Features won't work.");
             e.printStackTrace();
         }
@@ -60,6 +65,7 @@ public class StackMob extends JavaPlugin {
         entityTranslation = new EntityTranslation(this);
         updater = new Updater(this, 29999);
         itemTools = new ItemTools(this);
+        playerManager = new PlayerManager(this);
         getLogger().info("StackMob v" + getDescription().getVersion() + " by antiPerson and contributors.");
         getLogger().info("GitHub: " + Utilities.GITHUB + " Discord: " + Utilities.DISCORD);
         getLogger().info("Loading config files...");
@@ -75,13 +81,15 @@ public class StackMob extends JavaPlugin {
         try {
             getHookManager().registerHooks();
             getTraitManager().registerTraits();
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                 NoSuchMethodException e) {
             e.printStackTrace();
         }
         getLogger().info("Registering events, commands and tasks...");
         try {
             registerEvents();
-        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException |
+                 IllegalAccessException e) {
             e.printStackTrace();
         }
         PluginCommand command = getCommand("stackmob");
@@ -92,7 +100,10 @@ public class StackMob extends JavaPlugin {
         final int stackInterval = getMainConfig().getStackInterval();
         new MergeTask(this).runTaskTimer(this, 5, stackInterval);
         final int tagInterval = getMainConfig().getTagNearbyInterval();
-        new TagTask(this).runTaskTimer(this, 10, tagInterval);
+        new TagCheckTask(this).runTaskTimer(this, 10, tagInterval);
+        if (getMainConfig().isTagNearbyUseArmorstand()) {
+            new TagMoveTask(this).runTaskTimer(this, 0, 1);
+        }
         if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION && getHookManager().getProtocolLibHook() == null) {
             getLogger().warning("You are not running the plugin's native version and ProtocolLib could not be found (or has been disabled).");
             getLogger().warning("The display name visibility setting 'NEARBY' will not work unless this is fixed.");
@@ -100,30 +111,23 @@ public class StackMob extends JavaPlugin {
         getEntityManager().registerAllEntities();
         getUpdater().checkUpdate().whenComplete(((updateResult, throwable) -> {
             switch (updateResult.getResult()) {
-                case NONE:
-                    getLogger().info("No update is currently available.");
-                    break;
-                case ERROR:
-                    getLogger().info("There was an error while getting the latest update.");
-                    break;
-                case AVAILABLE:
-                    getLogger().info("A new version is currently available. (" + updateResult.getNewVersion() + ")");
-                    break;
+                case NONE -> getLogger().info("No update is currently available.");
+                case ERROR -> getLogger().info("There was an error while getting the latest update.");
+                case AVAILABLE ->
+                        getLogger().info("A new version is currently available. (" + updateResult.getNewVersion() + ")");
             }
         }));
-        if (!Utilities.isPaper()) {
-            getLogger().warning("It has been detected that you are not using Paper (https://papermc.io).");
-            getLogger().warning("StackMob makes use of Paper's API, which means you're missing out on features.");
-        }
         new Metrics(this, 522);
     }
 
     @Override
     public void onDisable() {
         getEntityManager().unregisterAllEntities();
+        Bukkit.getOnlinePlayers().forEach(player -> getPlayerManager().stopWatching(player));
     }
 
     private void registerEvents() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        registerEvent(PlayerArmorStandListener.class);
         registerEvent(BucketListener.class);
         registerEvent(DeathListener.class);
         registerEvent(TransformListener.class);
@@ -206,6 +210,10 @@ public class StackMob extends JavaPlugin {
 
     public HookManager getHookManager() {
         return hookManager;
+    }
+
+    public PlayerManager getPlayerManager() {
+        return playerManager;
     }
 
     public Updater getUpdater() {

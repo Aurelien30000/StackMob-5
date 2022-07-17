@@ -28,12 +28,8 @@ public class Remove extends SubCommand {
         Function<Entity, Boolean> function = entity -> entity instanceof Mob;
         if (args.length == 1) {
             switch (args[0]) {
-                case "animals":
-                    function = entity -> entity instanceof Animals;
-                    break;
-                case "hostile":
-                    function = entity -> entity instanceof Monster;
-                    break;
+                case "animals" -> function = entity -> entity instanceof Animals;
+                case "hostile" -> function = entity -> entity instanceof Monster;
             }
         }
         Set<StackEntity> toRemove = new ObjectOpenHashSet<>();

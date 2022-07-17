@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import uk.antiperson.stackmob.StackMob;
+import uk.antiperson.stackmob.config.EntityConfig;
 import uk.antiperson.stackmob.entity.EntityFood;
 import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.utils.Utilities;
@@ -27,10 +28,9 @@ public class BreedInteractListener implements Listener {
         if (event.getHand() != EquipmentSlot.HAND) {
             return;
         }
-        if (!(event.getRightClicked() instanceof Animals)) {
+        if (!(event.getRightClicked() instanceof final Animals animals)) {
             return;
         }
-        final Animals animals = (Animals) event.getRightClicked();
         if (!animals.canBreed()) {
             return;
         }
@@ -43,8 +43,8 @@ public class BreedInteractListener implements Listener {
         if (stackEntity == null || stackEntity.isSingle()) {
             return;
         }
-        final ListenerMode breed = sm.getMainConfig().getListenerMode(animals.getType(), "breed");
-        if (breed == ListenerMode.SPLIT) {
+        final EntityConfig.ListenerMode breed = sm.getMainConfig().getListenerMode(animals.getType(), EntityConfig.EventType.BREED);
+        if (breed == EntityConfig.ListenerMode.SPLIT) {
             stackEntity.slice();
             return;
         }

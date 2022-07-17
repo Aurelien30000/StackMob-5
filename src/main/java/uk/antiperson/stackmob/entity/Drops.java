@@ -12,7 +12,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import uk.antiperson.stackmob.StackMob;
-import uk.antiperson.stackmob.utils.NMSHelper;
+import uk.antiperson.stackmob.packets.NMSHelper;
 import uk.antiperson.stackmob.utils.Utilities;
 
 import java.util.Collection;

@@ -1,9 +1,9 @@
 package uk.antiperson.stackmob.entity;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;

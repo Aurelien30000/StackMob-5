@@ -22,7 +22,7 @@ public class MyPetHook extends Hook implements SegregatedMobHook {
     public boolean isCustomMob(LivingEntity entity) {
         for (MyPet myPet : MyPetApi.getMyPetManager().getAllActiveMyPets()) {
             Optional<MyPetBukkitEntity> optional = myPet.getEntity();
-            if (!optional.isPresent()) {
+            if (optional.isEmpty()) {
                 continue;
             }
             if (optional.get().getUniqueId().equals(entity.getUniqueId())) {

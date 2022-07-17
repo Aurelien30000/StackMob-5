@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import uk.antiperson.stackmob.StackMob;
+import uk.antiperson.stackmob.config.EntityConfig;
 import uk.antiperson.stackmob.entity.StackEntity;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,15 +28,13 @@ public class ExplosionListener implements Listener {
         if (stackEntity == null || stackEntity.isSingle()) {
             return;
         }
-        switch (sm.getMainConfig().getListenerMode(event.getEntityType(), "explosion")) {
-            case SPLIT:
-                stackEntity.slice();
-                break;
-            case MULTIPLY:
+        switch (sm.getMainConfig().getListenerMode(event.getEntityType(), EntityConfig.EventType.EXPLOSION)) {
+            case SPLIT -> stackEntity.slice();
+            case MULTIPLY -> {
                 final double multiplier = ThreadLocalRandom.current().nextDouble(0.4, 0.6);
                 final int toMultiply = sm.getMainConfig().getEventMultiplyLimit(event.getEntityType(), "explosion", stackEntity.getSize());
                 event.setYield(event.getYield() + Math.round(event.getYield() * toMultiply * multiplier));
-                break;
+            }
         }
     }
 }

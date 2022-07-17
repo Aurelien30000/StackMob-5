@@ -1,4 +1,4 @@
-package uk.antiperson.stackmob.utils;
+package uk.antiperson.stackmob.packets;
 
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
 import net.minecraft.network.syncher.DataWatcher;
@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 
 public class NMSHelper {
 
-    public static void sendPacket(Player player, Entity entity, boolean tagVisible) {
+    public static void sendVisibilityPacket(Player player, Entity entity, boolean tagVisible) {
         final CraftEntity craftEntity = (CraftEntity) entity;
         final DataWatcher watcher = new DataWatcher(craftEntity.getHandle());
         watcher.a(new DataWatcherObject<>(3, DataWatcherRegistry.i), tagVisible);

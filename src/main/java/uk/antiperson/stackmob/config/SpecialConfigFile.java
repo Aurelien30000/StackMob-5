@@ -16,9 +16,9 @@ public abstract class SpecialConfigFile extends ConfigFile {
 
     public ConfigList getList(EntityType type, String path) {
         ConfigValue configValue = get(type, path);
-        configValue = configValue.getValue() instanceof List<?> ? configValue : new ConfigValue(path, Collections.emptyList());
+        configValue = configValue.value() instanceof List<?> ? configValue : new ConfigValue(path, Collections.emptyList());
         final boolean inverted = getBoolean(path + "-invert");
-        return new ConfigList(this, (List<?>) configValue.getValue(), path, inverted);
+        return new ConfigList(this, (List<?>) configValue.value(), path, inverted);
     }
 
     public boolean getBoolean(EntityType type, String path) {
@@ -50,7 +50,7 @@ public abstract class SpecialConfigFile extends ConfigFile {
     }
 
     private Object getValue(EntityType type, String path) {
-        return get(type, path).getValue();
+        return get(type, path).value();
     }
 
     private ConfigValue get(EntityType type, String path) {

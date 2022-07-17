@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import uk.antiperson.stackmob.StackMob;
+import uk.antiperson.stackmob.config.EntityConfig;
 import uk.antiperson.stackmob.entity.Drops;
 import uk.antiperson.stackmob.entity.StackEntity;
 
@@ -79,8 +80,8 @@ public class ShearListener implements Listener {
         if (stackEntity == null || stackEntity.isSingle()) {
             return null;
         }
-        ListenerMode shear = sm.getMainConfig().getListenerMode(entity.getType(), "shear");
-        if (shear == ListenerMode.SPLIT) {
+        EntityConfig.ListenerMode shear = sm.getMainConfig().getListenerMode(entity.getType(), EntityConfig.EventType.SHEAR);
+        if (shear == EntityConfig.ListenerMode.SPLIT) {
             StackEntity slice = stackEntity.slice();
             if (slice.getEntity() instanceof Sheep) {
                 ((Sheep) slice.getEntity()).setSheared(false);
@@ -95,12 +96,11 @@ public class ShearListener implements Listener {
         int damage = health - amount;
         if (damage > 0) {
             damageable.setDamage(damageable.getDamage() + amount);
-            item.setItemMeta((ItemMeta) damageable);
+            item.setItemMeta(damageable);
         } else {
             item = new ItemStack(Material.AIR);
         }
-        if (entity instanceof Sheep) {
-            Sheep sheared = (Sheep) entity;
+        if (entity instanceof Sheep sheared) {
             LootContext lootContext = new LootContext.Builder(sheared.getLocation()).lootedEntity(sheared).build();
             Collection<ItemStack> loot = sheared.getLootTable().populateLoot(ThreadLocalRandom.current(), lootContext);
             for (ItemStack itemStack : loot) {

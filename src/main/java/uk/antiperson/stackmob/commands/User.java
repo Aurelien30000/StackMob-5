@@ -4,13 +4,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 import uk.antiperson.stackmob.utils.Utilities;
 
-public class User {
-
-    private final CommandSender sender;
-
-    public User(CommandSender sender) {
-        this.sender = sender;
-    }
+public record User(CommandSender sender) {
 
     public void sendRawMessage(String message) {
         sender.sendMessage(message);
@@ -28,22 +22,12 @@ public class User {
         sendMessage(MessageType.SUCCESS, message);
     }
 
-    public CommandSender getSender() {
-        return sender;
-    }
-
     private void sendMessage(MessageType type, String rawMessage) {
         StringBuilder message = new StringBuilder(Utilities.PREFIX);
         switch (type) {
-            case INFO:
-                message.append(ChatColor.YELLOW);
-                break;
-            case ERROR:
-                message.append(ChatColor.RED);
-                break;
-            case SUCCESS:
-                message.append(ChatColor.GREEN);
-                break;
+            case INFO -> message.append(ChatColor.YELLOW);
+            case ERROR -> message.append(ChatColor.RED);
+            case SUCCESS -> message.append(ChatColor.GREEN);
         }
         message.append(rawMessage);
         sender.sendMessage(message.toString());

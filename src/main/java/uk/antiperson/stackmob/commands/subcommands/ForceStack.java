@@ -27,12 +27,8 @@ public class ForceStack extends SubCommand {
         Predicate<LivingEntity> predicate = null;
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {
-                case "named":
-                    predicate = pEntity -> pEntity.getCustomName() != null;
-                    break;
-                case "tamed":
-                    predicate = pEntity -> (pEntity instanceof Tameable) && ((Tameable) pEntity).isTamed();
-                    break;
+                case "named" -> predicate = pEntity -> pEntity.getCustomName() != null;
+                case "tamed" -> predicate = pEntity -> (pEntity instanceof Tameable) && ((Tameable) pEntity).isTamed();
             }
         }
         for (World world : Bukkit.getWorlds()) {

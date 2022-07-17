@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
 import uk.antiperson.stackmob.StackMob;
+import uk.antiperson.stackmob.config.EntityConfig;
 import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.utils.Utilities;
 
@@ -23,20 +24,19 @@ public class DyeListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDyeListener(PlayerInteractEntityEvent event) {
-        if (!(event.getRightClicked() instanceof Sheep)) {
+        if (!(event.getRightClicked() instanceof Sheep sheep)) {
             return;
         }
         ItemStack handItem = event.getPlayer().getInventory().getItemInMainHand();
         if (!Utilities.isDye(handItem)) {
             return;
         }
-        Sheep sheep = (Sheep) event.getRightClicked();
         StackEntity stackEntity = sm.getEntityManager().getStackEntity(sheep);
         if (stackEntity == null || stackEntity.isSingle()) {
             return;
         }
-        ListenerMode mode = sm.getMainConfig().getListenerMode(sheep.getType(), "dye");
-        if (mode == ListenerMode.SPLIT) {
+        EntityConfig.ListenerMode mode = sm.getMainConfig().getListenerMode(sheep.getType(), EntityConfig.EventType.DYE);
+        if (mode == EntityConfig.ListenerMode.SPLIT) {
             ((Colorable) stackEntity.slice().getEntity()).setColor(sheep.getColor());
             return;
         }
