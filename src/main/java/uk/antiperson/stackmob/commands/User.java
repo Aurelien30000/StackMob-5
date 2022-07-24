@@ -1,13 +1,14 @@
 package uk.antiperson.stackmob.commands;
 
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import uk.antiperson.stackmob.utils.Utilities;
 
 public record User(CommandSender sender) {
 
     public void sendRawMessage(String message) {
-        sender.sendMessage(message);
+        sender.sendMessage(Component.text(message));
     }
 
     public void sendInfo(String message) {
@@ -22,15 +23,17 @@ public record User(CommandSender sender) {
         sendMessage(MessageType.SUCCESS, message);
     }
 
-    private void sendMessage(MessageType type, String rawMessage) {
-        StringBuilder message = new StringBuilder(Utilities.PREFIX);
-        switch (type) {
-            case INFO -> message.append(ChatColor.YELLOW);
-            case ERROR -> message.append(ChatColor.RED);
-            case SUCCESS -> message.append(ChatColor.GREEN);
-        }
-        message.append(rawMessage);
-        sender.sendMessage(message.toString());
+    private void sendMessage(MessageType type, String string) {
+        sendMessage(type, Component.text(string));
+    }
+
+    private void sendMessage(MessageType type, Component component) {
+        component = switch (type) {
+            case INFO -> component.color(NamedTextColor.YELLOW);
+            case ERROR -> component.color(NamedTextColor.RED);
+            case SUCCESS -> component.color(NamedTextColor.GREEN);
+        };
+        sender.sendMessage(Utilities.PREFIX.append(component));
     }
 
     enum MessageType {
