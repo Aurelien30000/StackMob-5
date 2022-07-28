@@ -106,6 +106,7 @@ public class MainConfig extends SpecialConfigFile {
     private final Map<EntityType, Set<World>> worlds_blacklist = new EnumMap<>(EntityType.class);
 
 
+    private final Map<String, Boolean> default_events_remove_stack_data_divide = new Object2BooleanOpenHashMap<>();
     private final Map<String, Boolean> default_events_remove_stack_data = new Object2BooleanOpenHashMap<>();
     private final Map<EntityType, Map<String, Boolean>> events_remove_stack_data = new EnumMap<>(EntityType.class);
     private final Map<String, EntityConfig.ListenerMode> default_events_mode = new Object2ObjectOpenHashMap<>();
@@ -199,10 +200,13 @@ public class MainConfig extends SpecialConfigFile {
         default_worlds_blacklist.addAll(getList("worlds-blacklist").asWorldList());
 
 
+        for (String key : getConfigurationSection("events.divide").getKeys(false)) {
+            default_events_remove_stack_data_divide.put(key, getBoolean("events.divide." + key));
+        }
         for (String key : getConfigurationSection("events.remove-stack-data").getKeys(false)) {
             default_events_remove_stack_data.put(key, getBoolean("events.remove-stack-data." + key));
         }
-        for (String key : getConfigurationSection("events.").getKeys(false)) {
+        for (String key : getConfigurationSection("events").getKeys(false)) {
             if (key.equals("equip"))
                 continue;
             final String mode = getString("events." + key + ".mode");
@@ -535,6 +539,10 @@ public class MainConfig extends SpecialConfigFile {
 
     public int getMinDeathStep(EntityType type) {
         return death_step_min_step.getOrDefault(type, default_death_step_min_step);
+    }
+
+    public boolean removeStackDataOnDivide(String reasonKey) {
+        return default_events_remove_stack_data_divide.get(reasonKey);
     }
 
     public boolean removeStackData(EntityType type, String reasonKey) {
