@@ -537,7 +537,7 @@ public class MainConfig extends SpecialConfigFile {
         return death_step_min_step.getOrDefault(type, default_death_step_min_step);
     }
 
-    public boolean removeStackDataOnDivide(EntityType type, String reasonKey) {
+    public boolean removeStackData(EntityType type, String reasonKey) {
         return events_remove_stack_data.getOrDefault(type, default_events_remove_stack_data).get(reasonKey);
     }
 

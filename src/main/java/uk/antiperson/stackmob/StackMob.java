@@ -155,12 +155,18 @@ public class StackMob extends JavaPlugin {
     private void registerEvent(Class<? extends Listener> clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         ListenerMetadata listenerMetadata = clazz.getAnnotation(ListenerMetadata.class);
         if (listenerMetadata != null) {
-            if (!getMainConfig().isSet(listenerMetadata.config())) {
-                return;
+            String[] keys = listenerMetadata.config();
+            boolean enabled = false;
+            int i = 0;
+
+            while (!enabled && i < keys.length) {
+                String key = keys[i];
+                enabled = getMainConfig().isSet(key) && getMainConfig().getBoolean(key);
+                i++;
             }
-            if (!getMainConfig().getBoolean(listenerMetadata.config())) {
+
+            if (!enabled)
                 return;
-            }
         }
         Listener listener = clazz.getDeclaredConstructor(StackMob.class).newInstance(this);
         getServer().getPluginManager().registerEvents(listener, this);

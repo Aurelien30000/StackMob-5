@@ -6,5 +6,5 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Inherited
 public @interface ListenerMetadata {
-    String config();
+    String[] config();
 }
