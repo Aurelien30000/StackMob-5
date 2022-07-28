@@ -25,6 +25,6 @@ public class NMSHelper {
 
     public static boolean canCreateWitherRose(LivingEntity entity) {
         EntityLiving entityLiving = ((CraftLivingEntity) entity).getHandle();
-        return entityLiving.et() instanceof EntityWither;
+        return entityLiving.es() instanceof EntityWither;
     }
 }
