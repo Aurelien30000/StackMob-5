@@ -3,19 +3,21 @@ package uk.antiperson.stackmob.entity.traits;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.entity.traits.trait.*;
 import uk.antiperson.stackmob.utils.Utilities;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
 public class TraitManager {
 
-    private final Map<EntityType, Set<Trait>> traitsPerEntity;
+    private final Map<EntityType, Set<Trait<LivingEntity>>> traitsPerEntity;
     private final StackMob sm;
 
     public TraitManager(StackMob sm) {
@@ -50,6 +52,7 @@ public class TraitManager {
             registerTrait(TurtleHasEgg.class);
         }
         if (Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_19_R1)) {
+            registerTrait(AllayOwner.class);
             registerTrait(FrogVariant.class);
         }
     }
@@ -63,14 +66,14 @@ public class TraitManager {
      * @throws NoSuchMethodException     if class constructor can not be found
      * @throws InvocationTargetException if instantiation fails
      */
-    private void registerTrait(Class<? extends Trait> trait) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    private <T extends Trait<? extends LivingEntity>> void registerTrait(Class<T> trait) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         final TraitMetadata traitMetadata = trait.getAnnotation(TraitMetadata.class);
         if (sm.getMainConfig().isTraitEnabled(traitMetadata.path()) || sm.getMainConfig().getBoolean(traitMetadata.path())) {
-            final Trait newTrait = trait.getDeclaredConstructor().newInstance();
+            final Trait<LivingEntity> newTrait = (Trait<LivingEntity>) trait.getDeclaredConstructor().newInstance();
 
             for (EntityType entityType : EntityType.values()) {
                 if (entityType.isAlive() && isTraitApplicable(newTrait, entityType.getEntityClass())) {
-                    final Set<Trait> applicableTraits = traitsPerEntity.computeIfAbsent(entityType, unused -> new ObjectOpenHashSet<>());
+                    final Set<Trait<LivingEntity>> applicableTraits = traitsPerEntity.computeIfAbsent(entityType, unused -> new ObjectOpenHashSet<>());
                     applicableTraits.add(newTrait);
                 }
             }
@@ -85,7 +88,7 @@ public class TraitManager {
      * @return if these entities have any not matching characteristics (traits.)
      */
     public boolean checkTraits(StackEntity first, StackEntity nearby) {
-        for (Trait trait : traitsPerEntity.get(first.getEntity().getType())) {
+        for (Trait<LivingEntity> trait : traitsPerEntity.get(first.getEntity().getType())) {
             if (trait.checkTrait(first.getEntity(), nearby.getEntity())) {
                 return true;
             }
@@ -100,7 +103,7 @@ public class TraitManager {
      * @param dead    the entity which traits should be copied from.
      */
     public void applyTraits(StackEntity spawned, StackEntity dead) {
-        for (Trait trait : traitsPerEntity.get(spawned.getEntity().getType())) {
+        for (Trait<LivingEntity> trait : traitsPerEntity.get(spawned.getEntity().getType())) {
             trait.applyTrait(spawned.getEntity(), dead.getEntity());
         }
     }
@@ -112,9 +115,10 @@ public class TraitManager {
      * @param clazz the class of the give entity to check.
      * @return if the trait is applicable to the given entity.
      */
-    private boolean isTraitApplicable(Trait trait, Class<? extends Entity> clazz) {
-        final TraitMetadata traitMetadata = trait.getClass().getAnnotation(TraitMetadata.class);
-        return traitMetadata.entity().isAssignableFrom(clazz);
+    private boolean isTraitApplicable(Trait<LivingEntity> trait, Class<? extends Entity> clazz) {
+        final ParameterizedType parameterizedType = (ParameterizedType) trait.getClass().getGenericInterfaces()[0];
+        final Class<?> typeArgument = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+        return typeArgument.isAssignableFrom(clazz);
     }
 
 }

@@ -81,6 +81,7 @@ display-name:
 
 # Whether entity specific traits (eg. profession, colour) should be segregated
 traits:
+  allay-owner: true
   sheep-color: true
   sheep-sheared: true
   slime-size: true

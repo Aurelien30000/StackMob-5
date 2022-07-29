@@ -1,20 +1,19 @@
 package uk.antiperson.stackmob.entity.traits.trait;
 
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import uk.antiperson.stackmob.entity.traits.Trait;
 import uk.antiperson.stackmob.entity.traits.TraitMetadata;
 
-@TraitMetadata(entity = Mob.class, path = "no-ai")
-public class Aware implements Trait {
+@TraitMetadata(path = "no-ai")
+public class Aware implements Trait<Mob> {
 
     @Override
-    public boolean checkTrait(LivingEntity first, LivingEntity nearby) {
-        return ((Mob) first).isAware() != ((Mob) nearby).isAware();
+    public boolean checkTrait(Mob first, Mob nearby) {
+        return first.isAware() != nearby.isAware();
     }
 
     @Override
-    public void applyTrait(LivingEntity spawned, LivingEntity dead) {
-        ((Mob) spawned).setAware(((Mob) dead).isAware());
+    public void applyTrait(Mob spawned, Mob dead) {
+        spawned.setAware(dead.isAware());
     }
 }

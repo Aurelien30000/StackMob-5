@@ -28,6 +28,5 @@ public abstract class DeathMethod implements DeathStep {
 
     @Override
     public void onSpawn(StackEntity spawned) {
-        return;
     }
 }
