@@ -17,12 +17,12 @@ import java.util.Set;
 
 public class TraitManager {
 
-    private final Map<EntityType, Set<Trait<LivingEntity>>> traitsPerEntity;
+    private final Map<EntityType, Set<Trait<LivingEntity>>> traits;
     private final StackMob sm;
 
     public TraitManager(StackMob sm) {
         this.sm = sm;
-        this.traitsPerEntity = new EnumMap<>(EntityType.class);
+        this.traits = new EnumMap<>(EntityType.class);
     }
 
     public void registerTraits() throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -75,7 +75,7 @@ public class TraitManager {
 
         for (EntityType entityType : EntityType.values()) {
             if (entityType.isAlive() && isTraitApplicable(trait, entityType.getEntityClass())) {
-                traitsPerEntity.computeIfAbsent(entityType, unused -> new ObjectOpenHashSet<>()).add(trait);
+                traits.computeIfAbsent(entityType, unused -> new ObjectOpenHashSet<>()).add(trait);
             }
         }
     }
@@ -88,7 +88,11 @@ public class TraitManager {
      * @return if these entities have any not matching characteristics (traits.)
      */
     public boolean checkTraits(StackEntity first, StackEntity nearby) {
-        for (Trait<LivingEntity> trait : traitsPerEntity.get(first.getEntity().getType())) {
+        final Set<Trait<LivingEntity>> set = traits.get(first.getEntity().getType());
+        if (set == null) {
+            return false;
+        }
+        for (Trait<LivingEntity> trait : set) {
             if (trait.checkTrait(first.getEntity(), nearby.getEntity())) {
                 return true;
             }
@@ -103,7 +107,11 @@ public class TraitManager {
      * @param dead    the entity which traits should be copied from.
      */
     public void applyTraits(StackEntity spawned, StackEntity dead) {
-        for (Trait<LivingEntity> trait : traitsPerEntity.get(spawned.getEntity().getType())) {
+        final Set<Trait<LivingEntity>> set = traits.get(spawned.getEntity().getType());
+        if (set == null) {
+            return;
+        }
+        for (Trait<LivingEntity> trait : set) {
             trait.applyTrait(spawned.getEntity(), dead.getEntity());
         }
     }
