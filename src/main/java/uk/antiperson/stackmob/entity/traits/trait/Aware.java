@@ -1,11 +1,11 @@
 package uk.antiperson.stackmob.entity.traits.trait;
 
 import org.bukkit.entity.Mob;
-import uk.antiperson.stackmob.entity.traits.Trait;
+import uk.antiperson.stackmob.entity.traits.EntityTrait;
 import uk.antiperson.stackmob.entity.traits.TraitMetadata;
 
 @TraitMetadata(path = "no-ai")
-public class Aware implements Trait<Mob> {
+public class Aware extends EntityTrait<Mob> {
 
     @Override
     public boolean checkTrait(Mob first, Mob nearby) {
