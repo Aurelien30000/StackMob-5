@@ -26,7 +26,7 @@ public class MythicMobsStackHook extends Hook implements StackableMobHook {
         if (!(activeMobO.getType().equals(activeMobN.getType()))) {
             return false;
         }
-        ConfigList list = sm.getMainConfig().getList(first.getType(), "hooks.mythicmobs.blacklist");
+        ConfigList list = sm.getMainConfig().getList(first.getType(), "hooks.mythicmobs.stack-blacklist");
         return !list.contains(activeMobN.getType().getInternalName());
     }
 
