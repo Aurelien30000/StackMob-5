@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.entity.StackEntity;
 
-@ListenerMetadata(config = {"events.divide.nametag", "remove-stack-data.nametag"})
+@ListenerMetadata(config = {"events.divide.nametag", "events.remove-stack-data.nametag"})
 public class TagInteractListener implements Listener {
 
     private final StackMob sm;
