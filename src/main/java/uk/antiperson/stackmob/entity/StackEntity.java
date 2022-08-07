@@ -2,8 +2,8 @@ package uk.antiperson.stackmob.entity;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
