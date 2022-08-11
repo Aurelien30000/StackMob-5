@@ -4,7 +4,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -82,7 +82,7 @@ public class Commands implements CommandExecutor, TabCompleter {
             sendError(commandSender, "This subcommand requires a player!");
             return false;
         }
-        String[] subCmdArgs = (String[]) ArrayUtils.remove(strings, 0);
+        String[] subCmdArgs = ArrayUtils.remove(strings, 0);
         if (!validateArgs(subCommand.getArguments(), subCmdArgs)) {
             sendError(commandSender, "Invalid arguments for '" + subCommand.getCommand() + "'. Usage:");
             commandSender.sendMessage(subCommand.buildComponent(cmd));

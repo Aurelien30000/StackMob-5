@@ -1,6 +1,6 @@
 package uk.antiperson.stackmob.config;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import uk.antiperson.stackmob.StackMob;
