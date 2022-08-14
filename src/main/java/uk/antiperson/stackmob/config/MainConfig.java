@@ -1,6 +1,9 @@
 package uk.antiperson.stackmob.config;
 
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -30,6 +33,7 @@ public class MainConfig extends SpecialConfigFile {
     private boolean default_stack_on_spawn;
     private final Map<EntityType, Boolean> stack_on_spawn = new EnumMap<>(EntityType.class);
     private boolean default_stack_line_of_sight;
+    private EntityConfig.NameTagStackMode default_stack_nametag_mode;
 
 
     private String default_display_name_format;
@@ -107,14 +111,13 @@ public class MainConfig extends SpecialConfigFile {
     private final Map<EntityType, Set<World>> worlds_blacklist = new EnumMap<>(EntityType.class);
 
 
-    private final Map<String, Boolean> default_events_remove_stack_data_divide = new Object2BooleanOpenHashMap<>();
-    private final Map<String, Boolean> default_events_remove_stack_data = new Object2BooleanOpenHashMap<>();
-    private final Map<EntityType, Map<String, Boolean>> events_remove_stack_data = new EnumMap<>(EntityType.class);
     private final Map<String, EntityConfig.ListenerMode> default_events_mode = new Object2ObjectOpenHashMap<>();
     private final Map<EntityType, Map<String, EntityConfig.ListenerMode>> events_mode = new EnumMap<>(EntityType.class);
     private final Map<String, Integer> default_events_limit = new Object2IntOpenHashMap<>();
     private final Map<EntityType, Map<String, Integer>> events_limit = new EnumMap<>(EntityType.class);
+    private EntityConfig.NameTagInteractMode default_events_nametag_mode;
     private StackEntity.EquipItemMode default_events_equip_mode;
+    private final Map<EntityType, EntityConfig.NameTagInteractMode> events_nametag_mode = new EnumMap<>(EntityType.class);
     private final Map<EntityType, StackEntity.EquipItemMode> events_equip_mode = new EnumMap<>(EntityType.class);
 
 
@@ -136,6 +139,7 @@ public class MainConfig extends SpecialConfigFile {
         default_stack_check_location_distance = getDouble("stack.check-location.distance");
         default_stack_on_spawn = getBoolean("stack.on-spawn");
         default_stack_line_of_sight = getBoolean("stack.line-of-sight");
+        default_stack_nametag_mode = EntityConfig.NameTagStackMode.valueOf(getString("stack.nametag-mode"));
 
 
         default_display_name_format = getString("display-name.format");
@@ -202,22 +206,23 @@ public class MainConfig extends SpecialConfigFile {
         default_worlds_blacklist.addAll(getList("worlds-blacklist").asWorldList());
 
 
-        for (String key : getConfigurationSection("events.divide").getKeys(false)) {
-            default_events_remove_stack_data_divide.put(key, getBoolean("events.divide." + key));
-        }
-        for (String key : getConfigurationSection("events.remove-stack-data").getKeys(false)) {
-            default_events_remove_stack_data.put(key, getBoolean("events.remove-stack-data." + key));
-        }
         for (String key : getConfigurationSection("events").getKeys(false)) {
-            if (key.equals("equip"))
-                continue;
-            final String mode = getString("events." + key + ".mode");
+            switch (key) {
+                // Special mode events.
+                case "nametag", "equip" -> {
+                }
+                default -> {
+                    // Other default simpler mode (MULTIPLY, SPLIT).
+                    final String mode = getString("events." + key + ".mode");
 
-            if (mode != null) {
-                default_events_mode.put(key, EntityConfig.ListenerMode.valueOf(mode));
-                default_events_limit.put(key, getInt("events." + key + ".limit"));
+                    if (mode != null) {
+                        default_events_mode.put(key, EntityConfig.ListenerMode.valueOf(mode));
+                        default_events_limit.put(key, getInt("events." + key + ".limit"));
+                    }
+                }
             }
         }
+        default_events_nametag_mode = EntityConfig.NameTagInteractMode.valueOf(getString("events.nametag.mode"));
         default_events_equip_mode = StackEntity.EquipItemMode.valueOf(getString("events.equip.mode"));
 
 
@@ -363,38 +368,38 @@ public class MainConfig extends SpecialConfigFile {
                 worlds_blacklist.put(type, custom_worlds_blacklist);
 
 
-            for (String key : getConfigurationSection(type, "events.remove-stack-data").getKeys(false)) {
-                final Map<String, Boolean> map = events_remove_stack_data.getOrDefault(type, new Object2BooleanOpenHashMap<>());
-                final boolean custom_events_remove_stack_data = getBoolean(type, "events.remove-stack-data." + key);
-
-                if (custom_events_remove_stack_data != default_events_remove_stack_data.get(key)) {
-                    map.put(key, custom_events_remove_stack_data);
-                    events_remove_stack_data.putIfAbsent(type, map);
-                }
-            }
             for (String key : getConfigurationSection(type, "events.").getKeys(false)) {
-                if (key.equals("equip"))
-                    continue;
-                final Map<String, EntityConfig.ListenerMode> mode_map = events_mode.getOrDefault(type, new Object2ObjectOpenHashMap<>());
-                final String custom_mode = getString(type, "events." + key + ".mode");
-
-                if (custom_mode != null && !custom_mode.equals(default_events_mode.get(key).toString())) {
-                    mode_map.put(key, EntityConfig.ListenerMode.valueOf(custom_mode));
-                    events_mode.putIfAbsent(type, mode_map);
-                }
-
                 switch (key) {
-                    case "breed", "dye", "shear", "explosion" -> {
-                        final Map<String, Integer> limit_map = events_limit.getOrDefault(type, new Object2IntOpenHashMap<>());
-                        final int custom_limit = getInt(type, "events." + key + ".limit");
-                        if (custom_limit != default_events_limit.get(key)) {
-                            limit_map.put(key, custom_limit);
-                            events_limit.putIfAbsent(type, limit_map);
-                        }
+                    // Special mode events.
+                    case "nametag", "equip" -> {
                     }
                     default -> {
+                        final Map<String, EntityConfig.ListenerMode> mode_map = events_mode.getOrDefault(type, new Object2ObjectOpenHashMap<>());
+                        final String custom_mode = getString(type, "events." + key + ".mode");
+
+                        if (custom_mode != null && !custom_mode.equals(default_events_mode.get(key).toString())) {
+                            mode_map.put(key, EntityConfig.ListenerMode.valueOf(custom_mode));
+                            events_mode.putIfAbsent(type, mode_map);
+                        }
+
+                        switch (key) {
+                            case "breed", "dye", "shear", "explosion" -> {
+                                final Map<String, Integer> limit_map = events_limit.getOrDefault(type, new Object2IntOpenHashMap<>());
+                                final int custom_limit = getInt(type, "events." + key + ".limit");
+                                if (custom_limit != default_events_limit.get(key)) {
+                                    limit_map.put(key, custom_limit);
+                                    events_limit.putIfAbsent(type, limit_map);
+                                }
+                            }
+                            default -> {
+                            }
+                        }
                     }
                 }
+            }
+            final String custom_events_nametag_mode = getString(type, "events.nametag.mode");
+            if (custom_events_nametag_mode != null && !custom_events_nametag_mode.equals(default_events_nametag_mode.toString())) {
+                events_nametag_mode.put(type, EntityConfig.NameTagInteractMode.valueOf(custom_events_nametag_mode));
             }
             final String custom_events_equip_mode = getString(type, "events.equip.mode");
             if (custom_events_equip_mode != null && !custom_events_equip_mode.equals(default_events_equip_mode.toString())) {
@@ -437,6 +442,13 @@ public class MainConfig extends SpecialConfigFile {
 
     public boolean isCheckCanSee() {
         return default_stack_line_of_sight;
+    }
+
+    public EntityConfig.NameTagStackMode getNameTagStackMode(EntityType type) {
+        if (default_stack_nametag_mode == EntityConfig.NameTagStackMode.JOIN && !(getTagMode(type) == StackEntity.TagMode.NEARBY && isTagNearbyUseArmorstand())) {
+            return EntityConfig.NameTagStackMode.IGNORE;
+        }
+        return default_stack_nametag_mode;
     }
 
     public String getTagFormat(EntityType type) {
@@ -547,14 +559,6 @@ public class MainConfig extends SpecialConfigFile {
         return death_step_min_step.getOrDefault(type, default_death_step_min_step);
     }
 
-    public boolean removeStackDataOnDivide(String reasonKey) {
-        return default_events_remove_stack_data_divide.get(reasonKey);
-    }
-
-    public boolean removeStackData(EntityType type, String reasonKey) {
-        return events_remove_stack_data.getOrDefault(type, default_events_remove_stack_data).get(reasonKey);
-    }
-
     public boolean isTargetingDisabled(EntityType type) {
         return disable_targeting_enabled.getOrDefault(type, default_disable_targeting_enabled);
     }
@@ -629,6 +633,10 @@ public class MainConfig extends SpecialConfigFile {
 
     public boolean isSkipDeathAnimation(EntityType type) {
         return death_skip_animation.getOrDefault(type, default_death_skip_animation) && Utilities.isPaper();
+    }
+
+    public EntityConfig.NameTagInteractMode getNameTagInteractMode(EntityType type) {
+        return events_nametag_mode.getOrDefault(type, default_events_nametag_mode);
     }
 
     public StackEntity.EquipItemMode getEquipItemMode(EntityType type) {

@@ -1,5 +1,7 @@
 package uk.antiperson.stackmob.listeners;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -47,7 +49,7 @@ public class SpawnListener implements Listener {
                 original.makeWait();
                 return;
             }
-            original.setSize(1, eventEntity.customName() == null);
+            original.setSize(1, eventEntity.customName() == null || eventEntity.customName() == Component.empty());
             sm.getHookManager().onSpawn(original);
             if (!sm.getMainConfig().isStackOnSpawn(eventEntity.getType())) {
                 return;

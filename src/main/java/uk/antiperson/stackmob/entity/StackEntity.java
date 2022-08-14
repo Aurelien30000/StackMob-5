@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.RayTraceResult;
@@ -334,9 +335,38 @@ public class StackEntity {
             return null;
         }
         mergePotionEffects(biggest, smallest);
+        dropNameTag(biggest, smallest);
         biggest.incrementSize(smallest.getSize());
         smallest.remove(unregister);
         return smallest;
+    }
+
+    public void dropNameTag(StackEntity keep, StackEntity removed) {
+        if (removed.getEntity().customName() == null || removed.getEntity().customName() == Component.empty()) {
+            return;
+        }
+        switch (sm.getMainConfig().getNameTagStackMode(entity.getType())) {
+            case IGNORE:
+                break;
+            case DROP:
+                final ItemStack itemStack = new ItemStack(Material.NAME_TAG);
+                final ItemMeta itemMeta = itemStack.getItemMeta();
+                itemMeta.displayName(removed.getEntity().customName());
+                itemStack.setItemMeta(itemMeta);
+                getWorld().dropItemNaturally(removed.getEntity().getLocation(), itemStack);
+                break;
+            case JOIN:
+                Component customName = keep.getEntity().customName();
+                if (customName == null || customName == Component.empty()) {
+                    keep.getEntity().customName(removed.getEntity().customName());
+                    break;
+                }
+                final Component removedCustomName = removed.getEntity().customName();
+                customName = customName.append(Component.text(" - "))
+                        .append(removedCustomName == null ? Component.empty() : removedCustomName);
+                keep.getEntity().customName(customName);
+                break;
+        }
     }
 
     public void mergePotionEffects(StackEntity toKeep, StackEntity toRemove) {

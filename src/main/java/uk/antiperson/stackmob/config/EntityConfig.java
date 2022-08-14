@@ -70,4 +70,15 @@ public class EntityConfig {
         SPLIT
     }
 
+    public enum NameTagInteractMode {
+        SLICE,
+        PREVENT
+    }
+
+    public enum NameTagStackMode {
+        IGNORE,
+        DROP,
+        JOIN
+    }
+
 }
