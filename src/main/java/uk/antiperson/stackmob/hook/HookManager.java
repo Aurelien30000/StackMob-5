@@ -117,7 +117,7 @@ public class HookManager {
                 if (!ph.canStack(first.getEntity()) || !ph.canStack(nearby.getEntity())) {
                     return true;
                 }
-            } else if (hook instanceof SegregatedMobHook smh) {
+            } else if (hook instanceof PreventStackHook smh) {
                 if (smh.isCustomMob(first.getEntity()) || smh.isCustomMob(nearby.getEntity())) {
                     return true;
                 }
@@ -126,6 +126,17 @@ public class HookManager {
                     if (!smh.isMatching(first.getEntity(), nearby.getEntity())) {
                         return true;
                     }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean spawnCheck(LivingEntity stackEntity) {
+        for (Hook hook : hooks) {
+            if (hook instanceof PreventStackHook smh) {
+                if (smh.isCustomMob(stackEntity)) {
+                    return true;
                 }
             }
         }
@@ -141,7 +152,7 @@ public class HookManager {
     }
 
     public LivingEntity spawnClone(Location location, StackEntity entity) {
-        StackableMobHook smh = getApplicableHook(entity);
+        final StackableMobHook smh = getApplicableHook(entity);
         if (smh != null) {
             return smh.spawnClone(location, entity.getEntity());
         }

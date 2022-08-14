@@ -1,12 +1,9 @@
 package uk.antiperson.stackmob.packets;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.hook.hooks.ProtocolLibHook;
@@ -45,7 +42,7 @@ public class TagHandler {
     }
 
     public void playerInRange() {
-        if (sm.getMainConfig().isTagNearbyRayTrace() && !rayTrace((Mob) stackEntity.getEntity(), player)) {
+        if (sm.getMainConfig().isTagNearbyRayTrace() && !stackEntity.rayTracePlayer(player)) {
             if (tagVisible) {
                 playerOutRange();
             }
@@ -86,16 +83,6 @@ public class TagHandler {
             return;
         }
         NMSHelper.sendVisibilityPacket(player, entity, tagVisible);
-    }
-
-    private boolean rayTrace(Mob entity, Player player) {
-        if (entity.getEyeLocation().getWorld() != player.getWorld()) {
-            return false;
-        }
-        Vector resultant = entity.getEyeLocation().toVector().subtract(player.getEyeLocation().toVector());
-        double distance = player.getEyeLocation().distance(entity.getEyeLocation());
-        RayTraceResult result = player.getWorld().rayTraceBlocks(player.getEyeLocation(), resultant, distance, FluidCollisionMode.NEVER, true);
-        return result == null || result.getHitBlock() == null;
     }
 
     public boolean isTagVisible() {

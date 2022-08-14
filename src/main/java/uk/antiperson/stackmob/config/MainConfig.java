@@ -29,6 +29,7 @@ public class MainConfig extends SpecialConfigFile {
     private double default_stack_check_location_distance;
     private boolean default_stack_on_spawn;
     private final Map<EntityType, Boolean> stack_on_spawn = new EnumMap<>(EntityType.class);
+    private boolean default_stack_line_of_sight;
 
 
     private String default_display_name_format;
@@ -134,6 +135,7 @@ public class MainConfig extends SpecialConfigFile {
         default_stack_check_location_enabled = getBoolean("stack.check-location.enabled");
         default_stack_check_location_distance = getDouble("stack.check-location.distance");
         default_stack_on_spawn = getBoolean("stack.on-spawn");
+        default_stack_line_of_sight = getBoolean("stack.line-of-sight");
 
 
         default_display_name_format = getString("display-name.format");
@@ -431,6 +433,10 @@ public class MainConfig extends SpecialConfigFile {
 
     public boolean isStackOnSpawn(EntityType type) {
         return stack_on_spawn.getOrDefault(type, default_stack_on_spawn);
+    }
+
+    public boolean isCheckCanSee() {
+        return default_stack_line_of_sight;
     }
 
     public String getTagFormat(EntityType type) {

@@ -36,6 +36,9 @@ public class SpawnListener implements Listener {
             if (sm.getMainConfig().isEntityBlacklisted(eventEntity, event.getSpawnReason())) {
                 return;
             }
+            if (sm.getHookManager().spawnCheck(event.getEntity())) {
+                return;
+            }
             if (EventHelper.callStackSpawnEvent(eventEntity).isCancelled()) {
                 return;
             }
@@ -44,7 +47,7 @@ public class SpawnListener implements Listener {
                 original.makeWait();
                 return;
             }
-            original.setSize(1, eventEntity.getCustomName() == null);
+            original.setSize(1, eventEntity.customName() == null);
             sm.getHookManager().onSpawn(original);
             if (!sm.getMainConfig().isStackOnSpawn(eventEntity.getType())) {
                 return;

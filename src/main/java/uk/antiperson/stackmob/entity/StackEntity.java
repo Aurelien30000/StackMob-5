@@ -4,17 +4,21 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.events.EventHelper;
 import uk.antiperson.stackmob.hook.StackableMobHook;
@@ -293,7 +297,10 @@ public class StackEntity {
         if (sm.getTraitManager().checkTraits(this, nearby)) {
             return false;
         }
-        return !sm.getHookManager().checkHooks(this, nearby);
+        if (sm.getHookManager().checkHooks(this, nearby)) {
+            return false;
+        }
+        return sm.getMainConfig().isCheckCanSee() && rayTraceStack(nearby);
     }
 
     public boolean canStack() {
@@ -490,6 +497,32 @@ public class StackEntity {
         this.removed = true;
     }
 
+    public boolean rayTraceStack(StackEntity stackEntity) {
+        return rayTrace(stackEntity.getEntity());
+    }
+
+    public boolean rayTracePlayer(Player player) {
+        return rayTrace(player);
+    }
+
+    /**
+     * Return whether this stack entity can be seen by the supplied entity
+     *
+     * @param livingEntity the living entity
+     * @return whether this stack entity can be seen by the supplied entity
+     */
+    private boolean rayTrace(LivingEntity livingEntity) {
+        if (getEntity().getEyeLocation().getWorld() != livingEntity.getWorld()) {
+            return false;
+        }
+        final Vector resultant = getEntity().getEyeLocation().toVector().subtract(livingEntity.getEyeLocation().toVector());
+        final double distance = livingEntity.getEyeLocation().distance(getEntity().getEyeLocation());
+        if (distance == 0 || resultant.lengthSquared() == 0) {
+            return true;
+        }
+        final RayTraceResult result = livingEntity.getWorld().rayTraceBlocks(livingEntity.getEyeLocation(), resultant, distance, FluidCollisionMode.NEVER, true);
+        return result == null || result.getHitBlock() == null;
+    }
 
     public enum EquipItemMode {
         IGNORE,
