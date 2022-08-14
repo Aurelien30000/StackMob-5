@@ -345,7 +345,7 @@ public class StackEntity {
         if (removed.getEntity().customName() == null || removed.getEntity().customName() == Component.empty()) {
             return;
         }
-        switch (sm.getMainConfig().getNameTagStackMode(entity.getType())) {
+        switch (sm.getMainConfig().getNameTagStackMode(removed.getEntity().getType())) {
             case IGNORE:
                 break;
             case DROP:
@@ -401,6 +401,9 @@ public class StackEntity {
         final StackEntity cloneStack = sm.getEntityManager().registerStackedEntity(clone);
         cloneStack.setSize(amount);
         duplicateTraits(cloneStack);
+        if (sm.getMainConfig().isTagNearbyUseArmorstand() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
+            clone.customName(getEntity().customName());
+        }
         return cloneStack;
     }
 
@@ -572,16 +575,19 @@ public class StackEntity {
         private Component displayName;
 
         public void update() {
-            LivingEntity entity = getEntity();
-            int threshold = sm.getMainConfig().getTagThreshold(entity.getType());
+            final LivingEntity entity = getEntity();
+            final int threshold = sm.getMainConfig().getTagThreshold(entity.getType());
             if (getSize() <= threshold) {
+                if (sm.getMainConfig().isTagNearbyUseArmorstand() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
+                    return;
+                }
                 entity.customName(null);
                 entity.setCustomNameVisible(false);
                 return;
             }
             String format = sm.getMainConfig().getTagFormat(entity.getType());
             format = StringUtils.replace(format, "%type%", getEntityName());
-            format = StringUtils.replace(format, "%size%", getSize() + "");
+            format = StringUtils.replace(format, "%size%", String.valueOf(getSize()));
             displayName = Utilities.createComponent(format);
             if (sm.getMainConfig().isTagNearbyUseArmorstand() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
                 return;

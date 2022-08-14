@@ -1,7 +1,6 @@
 package uk.antiperson.stackmob.entity.traits;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import uk.antiperson.stackmob.StackMob;
@@ -73,9 +72,11 @@ public class TraitManager {
         }
         final Trait<LivingEntity> trait = (Trait<LivingEntity>) traitClass.getDeclaredConstructor().newInstance();
 
+        final ParameterizedType parameterizedType = (ParameterizedType) trait.getClass().getGenericInterfaces()[0];
+        final Class<? extends LivingEntity> typeArgument = (Class<? extends LivingEntity>) parameterizedType.getActualTypeArguments()[0];
         for (EntityType entityType : EntityType.values()) {
-            if (entityType.isAlive() && isTraitApplicable(trait, entityType.getEntityClass())) {
-                traits.computeIfAbsent(entityType, unused -> new ObjectOpenHashSet<>()).add(trait);
+            if (entityType.isAlive() && entityType.getEntityClass() != null && typeArgument.isAssignableFrom(entityType.getEntityClass())) {
+                traits.computeIfAbsent(entityType, type -> new ObjectOpenHashSet<>()).add(trait);
             }
         }
     }
@@ -114,19 +115,6 @@ public class TraitManager {
         for (Trait<LivingEntity> trait : set) {
             trait.applyTrait(spawned.getEntity(), dead.getEntity());
         }
-    }
-
-    /**
-     * Check if the trait is applicable to the given entity.
-     *
-     * @param trait the trait to check.
-     * @param clazz the class of the give entity to check.
-     * @return if the trait is applicable to the given entity.
-     */
-    private boolean isTraitApplicable(Trait<LivingEntity> trait, Class<? extends Entity> clazz) {
-        final ParameterizedType parameterizedType = (ParameterizedType) trait.getClass().getGenericInterfaces()[0];
-        final Class<?> typeArgument = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-        return typeArgument.isAssignableFrom(clazz);
     }
 
 }
