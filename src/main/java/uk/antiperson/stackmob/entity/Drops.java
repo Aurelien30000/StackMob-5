@@ -43,8 +43,15 @@ public class Drops {
             return items;
         }
         final boolean useLootTables = sm.getMainConfig().isDropLootTables(dead.getType());
-        final LootContext lootContext = new LootContext.Builder(dead.getLocation()).lootedEntity(dead).killer(dead.getKiller()).build();
-        Collection<ItemStack> genItems = originalDrops;
+        final LootContext lootContext;
+        Collection<ItemStack> genItems;
+        if (useLootTables) {
+            lootContext = new LootContext.Builder(dead.getLocation()).lootedEntity(dead).killer(dead.getKiller()).build();
+            genItems = null;
+        } else {
+            lootContext = null;
+            genItems = originalDrops.stream().map(ItemStack::clone).toList();
+        }
         for (int i = 0; i < deathAmount; i++) {
             if (useLootTables) {
                 genItems = ((Mob) dead).getLootTable().populateLoot(ThreadLocalRandom.current(), lootContext);
