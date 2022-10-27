@@ -44,7 +44,8 @@ public class MainConfig extends SpecialConfigFile {
     private int default_display_name_threshold;
     private boolean default_display_name_nearby_ray_trace;
     private final Map<EntityType, Integer> display_name_threshold = new EnumMap<>(EntityType.class);
-    private boolean default_display_name_nearby_use_armorstand;
+    private boolean default_display_name_nearby_armorstand_enabled;
+    private double default_display_name_nearby_armorstand_offset;
 
 
     private boolean default_death_skip_animation;
@@ -147,7 +148,8 @@ public class MainConfig extends SpecialConfigFile {
         default_display_name_nearby_range = getList("display-name.nearby.range").asIntList().toArray(new Integer[2]);
         default_display_name_threshold = getInt("display-name.threshold");
         default_display_name_nearby_ray_trace = getBoolean("display-name.nearby.ray-trace");
-        default_display_name_nearby_use_armorstand = getBoolean("display-name.nearby.use-armorstand");
+        default_display_name_nearby_armorstand_enabled = getBoolean("display-name.nearby.armorstand.enabled");
+        default_display_name_nearby_armorstand_offset = getDouble("display-name.nearby.armorstand.offset");
 
 
         default_death_skip_animation = getBoolean("death.skip-animation");
@@ -445,7 +447,7 @@ public class MainConfig extends SpecialConfigFile {
     }
 
     public EntityConfig.NameTagStackMode getNameTagStackMode(EntityType type) {
-        if (default_stack_nametag_mode == EntityConfig.NameTagStackMode.JOIN && !(getTagMode(type) == StackEntity.TagMode.NEARBY && isTagNearbyUseArmorstand())) {
+        if (default_stack_nametag_mode == EntityConfig.NameTagStackMode.JOIN && !(getTagMode(type) == StackEntity.TagMode.NEARBY && isTagNearbyArmorStandEnabled())) {
             return EntityConfig.NameTagStackMode.IGNORE;
         }
         return default_stack_nametag_mode;
@@ -475,8 +477,12 @@ public class MainConfig extends SpecialConfigFile {
         return default_display_name_nearby_ray_trace;
     }
 
-    public boolean isTagNearbyUseArmorstand() {
-        return default_display_name_nearby_use_armorstand;
+    public boolean isTagNearbyArmorStandEnabled() {
+        return default_display_name_nearby_armorstand_enabled;
+    }
+
+    public double getTagNearbyArmorStandOffset() {
+        return default_display_name_nearby_armorstand_offset;
     }
 
     public boolean isTraitEnabled(String traitKey) {

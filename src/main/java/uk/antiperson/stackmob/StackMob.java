@@ -101,7 +101,7 @@ public class StackMob extends JavaPlugin {
         new MergeTask(this).runTaskTimer(this, 5, stackInterval);
         final int tagInterval = getMainConfig().getTagNearbyInterval();
         new TagCheckTask(this).runTaskTimer(this, 10, tagInterval);
-        if (getMainConfig().isTagNearbyUseArmorstand()) {
+        if (getMainConfig().isTagNearbyArmorStandEnabled()) {
             new TagMoveTask(this).runTaskTimer(this, 0, 1);
         }
         if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION && getHookManager().getProtocolLibHook() == null) {

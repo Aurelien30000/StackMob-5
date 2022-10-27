@@ -401,7 +401,7 @@ public class StackEntity {
         final StackEntity cloneStack = sm.getEntityManager().registerStackedEntity(clone);
         cloneStack.setSize(amount);
         duplicateTraits(cloneStack);
-        if (sm.getMainConfig().isTagNearbyUseArmorstand() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
+        if (sm.getMainConfig().isTagNearbyArmorStandEnabled() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
             clone.customName(getEntity().customName());
         }
         return cloneStack;
@@ -578,7 +578,7 @@ public class StackEntity {
             final LivingEntity entity = getEntity();
             final int threshold = sm.getMainConfig().getTagThreshold(entity.getType());
             if (getSize() <= threshold) {
-                if (sm.getMainConfig().isTagNearbyUseArmorstand() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
+                if (sm.getMainConfig().isTagNearbyArmorStandEnabled() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
                     return;
                 }
                 entity.customName(null);
@@ -589,7 +589,7 @@ public class StackEntity {
             format = StringUtils.replace(format, "%type%", getEntityName());
             format = StringUtils.replace(format, "%size%", String.valueOf(getSize()));
             displayName = Utilities.createComponent(format);
-            if (sm.getMainConfig().isTagNearbyUseArmorstand() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
+            if (sm.getMainConfig().isTagNearbyArmorStandEnabled() && sm.getMainConfig().getTagMode(entity.getType()) == TagMode.NEARBY) {
                 return;
             }
             entity.customName(displayName);

@@ -20,11 +20,11 @@ public class ProtocolLibFakeArmorStand implements FakeArmorStand {
     }
 
     @Override
-    public void spawnFakeArmorStand(Entity owner, Location location, Component name) {
+    public void spawnFakeArmorStand(Entity owner, Location location, Component name, double offset) {
         if (plh == null) {
             plh = sm.getHookManager().getProtocolLibHook();
         }
-        entityId = plh.spawnFakeArmorStand(player, adjustLocation(owner), name);
+        entityId = plh.spawnFakeArmorStand(player, adjustLocation(owner, offset), name);
     }
 
     @Override
@@ -36,11 +36,11 @@ public class ProtocolLibFakeArmorStand implements FakeArmorStand {
     }
 
     @Override
-    public void teleport(Entity entity) {
+    public void teleport(Entity entity, double offset) {
         if (plh == null) {
             plh = sm.getHookManager().getProtocolLibHook();
         }
-        plh.teleport(player, entityId, adjustLocation(entity));
+        plh.teleport(player, entityId, adjustLocation(entity, offset));
     }
 
     @Override

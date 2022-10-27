@@ -6,16 +6,18 @@ import org.bukkit.entity.Entity;
 
 public interface FakeArmorStand {
 
-    void spawnFakeArmorStand(Entity owner, Location location, Component name);
+    void spawnFakeArmorStand(Entity owner, Location location, Component name, double offset);
 
     void updateName(Component newName);
 
-    void teleport(Entity entity);
+    void teleport(Entity entity, double offset);
 
     void removeFakeArmorStand();
 
-    default Location adjustLocation(Entity entity) {
-        double adjustment = entity.customName() == null || entity.customName() == Component.empty() ? 0.1 : 0.3;
+    default Location adjustLocation(Entity entity, double offset) {
+        double adjustment = offset > 0
+                ? offset
+                : entity.customName() == null || entity.customName() == Component.empty() ? 0.1 : 0.3;
         return entity.getLocation().add(0, entity.getHeight() + adjustment, 0);
     }
 

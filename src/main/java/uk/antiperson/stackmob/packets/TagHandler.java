@@ -2,7 +2,6 @@ package uk.antiperson.stackmob.packets;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.entity.StackEntity;
@@ -34,8 +33,9 @@ public class TagHandler {
 
     public void newlyInRange() {
         tagVisible = true;
-        if (sm.getMainConfig().isTagNearbyUseArmorstand()) {
-            fakeArmorStand.spawnFakeArmorStand(stackEntity.getEntity(), stackEntity.getEntity().getLocation(), stackEntity.getTag().getDisplayName());
+        if (sm.getMainConfig().isTagNearbyArmorStandEnabled()) {
+            fakeArmorStand.spawnFakeArmorStand(stackEntity.getEntity(), stackEntity.getEntity().getLocation(),
+                    stackEntity.getTag().getDisplayName(), sm.getMainConfig().getTagNearbyArmorStandOffset());
             return;
         }
         sendPacket(stackEntity.getEntity(), player, true);
@@ -54,10 +54,10 @@ public class TagHandler {
     }
 
     public void updateTag() {
-        if (!sm.getMainConfig().isTagNearbyUseArmorstand()) {
+        if (!sm.getMainConfig().isTagNearbyArmorStandEnabled()) {
             return;
         }
-        fakeArmorStand.teleport(stackEntity.getEntity());
+        fakeArmorStand.teleport(stackEntity.getEntity(), sm.getMainConfig().getTagNearbyArmorStandOffset());
         if (stackEntity.getTag().getDisplayName().equals(lastTag)) {
             return;
         }
@@ -68,7 +68,7 @@ public class TagHandler {
     public void playerOutRange() {
         sendPacket(stackEntity.getEntity(), player, false);
         tagVisible = false;
-        if (sm.getMainConfig().isTagNearbyUseArmorstand()) {
+        if (sm.getMainConfig().isTagNearbyArmorStandEnabled()) {
             fakeArmorStand.removeFakeArmorStand();
         }
     }
