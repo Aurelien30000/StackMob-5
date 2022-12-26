@@ -35,7 +35,7 @@ public class Utilities {
 
     private static final boolean usingPaper;
     private static MinecraftVersion minecraftVersion;
-    public static final MinecraftVersion NMS_VERSION = MinecraftVersion.V1_19_R1;
+    public static final MinecraftVersion NMS_VERSION = MinecraftVersion.V1_19_R2;
     private static final LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.builder().character('&').hexColors().hexCharacter('#').build();
 
     static {
@@ -132,7 +132,8 @@ public class Utilities {
         V1_17_R1("v1_17_R1"),
         V1_18_R1("v1_18_R1"),
         V1_18_R2("v1_18_R2"),
-        V1_19_R1("v1_19_R1");
+        V1_19_R1("v1_19_R1"),
+        V1_19_R2("v1_19_R2"),;
 
         final String internalName;
 
