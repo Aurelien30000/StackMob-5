@@ -18,18 +18,6 @@ public class RemoveListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityRemove(EntityRemoveFromWorldEvent event) {
-        if (!(event.getEntity() instanceof Mob)) {
-            return;
-        }
-        final StackEntity stackEntity = sm.getEntityManager().getStackEntity((LivingEntity) event.getEntity());
-        if (stackEntity == null || stackEntity.isRemoved()) {
-            return;
-        }
-        sm.getEntityManager().unregisterStackedEntity(stackEntity);
-    }
-
-    @EventHandler
     public void onEntityAdd(EntityAddToWorldEvent event) {
         if (!(event.getEntity() instanceof Mob)) {
             return;
@@ -39,6 +27,18 @@ public class RemoveListener implements Listener {
             return;
         }
         sm.getEntityManager().registerStackedEntity(livingEntity);
+    }
+
+    @EventHandler
+    public void onEntityRemove(EntityRemoveFromWorldEvent event) {
+        if (!(event.getEntity() instanceof Mob)) {
+            return;
+        }
+        final StackEntity stackEntity = sm.getEntityManager().getStackEntity((LivingEntity) event.getEntity());
+        if (stackEntity == null || stackEntity.isRemoved()) {
+            return;
+        }
+        sm.getEntityManager().unregisterStackedEntity(stackEntity);
     }
 
 }

@@ -40,7 +40,7 @@ public class PlayerManager {
         map.remove(player.getUniqueId());
     }
 
-    public Collection<PlayerWatcher> geWatchers() {
+    public Collection<PlayerWatcher> getWatchers() {
         return map.values();
     }
 }

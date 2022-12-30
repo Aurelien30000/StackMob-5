@@ -11,7 +11,7 @@ import uk.antiperson.stackmob.utils.Utilities;
 public class TagHandler {
 
     private boolean tagVisible;
-    private final StackEntity stackEntity;
+    private StackEntity stackEntity;
     private final StackMob sm;
     private final Player player;
     private FakeArmorStand fakeArmorStand;
@@ -87,5 +87,9 @@ public class TagHandler {
 
     public boolean isTagVisible() {
         return tagVisible;
+    }
+
+    public void setStackEntity(StackEntity stackEntity) {
+        this.stackEntity = stackEntity;
     }
 }

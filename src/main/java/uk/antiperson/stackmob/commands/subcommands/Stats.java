@@ -49,7 +49,7 @@ public class Stats extends SubCommand {
         int trackingOverall = 0;
         int trackingStacks = 0;
         int visible = 0;
-        for (PlayerWatcher playerWatcher : sm.getPlayerManager().geWatchers()) {
+        for (PlayerWatcher playerWatcher : sm.getPlayerManager().getWatchers()) {
             trackingOverall += 1;
             if (!playerWatcher.getPlayer().equals(sender.sender())) {
                 continue;
