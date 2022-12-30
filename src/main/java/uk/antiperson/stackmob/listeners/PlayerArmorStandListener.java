@@ -5,7 +5,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import uk.antiperson.stackmob.StackMob;
 
-@ListenerMetadata(config = "display-name.nearby.use-armorstand")
+@ListenerMetadata(config = "display-name.nearby.armorstand.enabled")
 public class PlayerArmorStandListener implements Listener {
 
     private final StackMob sm;
@@ -15,7 +15,7 @@ public class PlayerArmorStandListener implements Listener {
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
+    public void onPlayerQuitEvent(PlayerQuitEvent event) {
         sm.getPlayerManager().stopWatching(event.getPlayer());
     }
 }

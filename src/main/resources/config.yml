@@ -43,7 +43,7 @@ stack:
   # What should be done if a nametagged entity is removed when stacking?
   # DROP - drop a nametag
   # JOIN - make it so that the value of the nametag is added to the remaining entity
-  #        NOTE: this will only work if display-name.mode is NEARBY and display-name.nearby.use-armorstand is enabled!
+  #        NOTE: this will only work if display-name.mode is NEARBY and display-name.nearby.armorstand.enabled is enabled!
   # IGNORE - do nothing
   # Also see events.nametag where you can define what happens when stacks are nametagged
   nametag-mode: JOIN

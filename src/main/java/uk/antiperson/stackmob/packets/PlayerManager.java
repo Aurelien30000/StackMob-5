@@ -32,12 +32,11 @@ public class PlayerManager {
     }
 
     public void stopWatching(Player player) {
-        PlayerWatcher playerWatcher = map.get(player.getUniqueId());
+        PlayerWatcher playerWatcher = map.remove(player.getUniqueId());
         if (playerWatcher == null) {
             return;
         }
         playerWatcher.stopWatching();
-        map.remove(player.getUniqueId());
     }
 
     public Collection<PlayerWatcher> getWatchers() {
