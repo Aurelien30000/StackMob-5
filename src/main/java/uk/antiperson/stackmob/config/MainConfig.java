@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.entity.death.DeathType;
+import uk.antiperson.stackmob.hook.hooks.JobsHook;
 import uk.antiperson.stackmob.utils.Utilities;
 
 import java.io.IOException;
@@ -123,6 +124,7 @@ public class MainConfig extends SpecialConfigFile {
 
 
     private boolean default_events_multiply_slime_split;
+    private JobsHook.JobHookMode default_jobs_hook;
 
     private final StackMob sm;
 
@@ -229,6 +231,7 @@ public class MainConfig extends SpecialConfigFile {
 
 
         default_events_multiply_slime_split = getBoolean("events.multiply.slime-split");
+        default_jobs_hook = JobsHook.JobHookMode.valueOf(getString("hooks.jobs.mode"));
 
         for (EntityType type : EntityType.values()) {
             final int custom_stack_max_size = getInt(type, "stack.max-size");
@@ -491,6 +494,10 @@ public class MainConfig extends SpecialConfigFile {
 
     public boolean isHookEnabled(String traitKey) {
         return getBoolean("hooks." + traitKey);
+    }
+
+    public JobsHook.JobHookMode getJobHookMode() {
+        return default_jobs_hook;
     }
 
     public boolean isDropMultiEnabled(EntityType type) {
