@@ -36,23 +36,21 @@ public class Remove extends SubCommand {
         }
         final Set<Chunk> chunks = new HashSet<>();
         switch (args[0]) {
-            case "chunk":
+            case "chunk" -> {
                 if (!(sender.sender() instanceof Player)) {
                     sender.sendError("You need to be a player!");
                     return false;
                 }
                 chunks.add(((Player) sender.sender()).getLocation().getChunk());
-                break;
-            case "world":
+            }
+            case "world" -> {
                 if (!(sender.sender() instanceof Player)) {
                     sender.sendError("You need to be a player!");
                     return false;
                 }
                 chunks.addAll(List.of(((Player) sender.sender()).getWorld().getLoadedChunks()));
-                break;
-            case "all":
-                Bukkit.getWorlds().forEach(world -> chunks.addAll(List.of(world.getLoadedChunks())));
-                break;
+            }
+            case "all" -> Bukkit.getWorlds().forEach(world -> chunks.addAll(List.of(world.getLoadedChunks())));
         }
         for (Chunk chunk : chunks) {
             for (Entity entity : chunk.getEntities()) {

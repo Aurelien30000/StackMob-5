@@ -98,35 +98,36 @@ public class Commands implements CommandExecutor, TabCompleter {
 
     public boolean validateArgs(CommandArgument[] argumentTypes, String[] args) {
         for (int i = 0; i < args.length; i++) {
-            CommandArgument argument = argumentTypes[i];
+            final CommandArgument argument = argumentTypes[i];
             switch (argument.getType()) {
-                case BOOLEAN:
+                case BOOLEAN -> {
                     if (!(args[i].equals("true") || args[i].equals("false")))
                         return false;
-                    break;
-                case INTEGER:
+                }
+                case INTEGER -> {
                     try {
                         Integer.valueOf(args[i]);
                     } catch (NumberFormatException e) {
                         return false;
                     }
-                    break;
-                case ENTITY_TYPE:
+                }
+                case ENTITY_TYPE -> {
                     try {
                         EntityType.valueOf(args[i].toUpperCase());
                     } catch (IllegalArgumentException e) {
                         return false;
                     }
-                    break;
-                case WORLD:
+                }
+                case WORLD -> {
                     if (Bukkit.getWorld(args[i]) == null) {
                         return false;
                     }
-                    break;
-                case STRING:
+                }
+                case STRING -> {
                     if (!argument.getExpectedArguments().contains(args[i])) {
                         return false;
                     }
+                }
             }
         }
         if (args.length < argumentTypes.length) {
