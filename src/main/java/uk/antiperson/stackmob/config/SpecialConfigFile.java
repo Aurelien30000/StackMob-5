@@ -1,9 +1,9 @@
 package uk.antiperson.stackmob.config;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import uk.antiperson.stackmob.StackMob;
+import uk.antiperson.stackmob.utils.Utilities;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,14 +29,14 @@ public abstract class SpecialConfigFile extends ConfigFile {
     public double getDouble(EntityType type, String path) {
         Object value = getValue(type, path);
         if (value instanceof Integer) {
-            return NumberUtils.toInt(value.toString());
+            return Utilities.toInt(value.toString());
         }
-        return value instanceof Double ? NumberUtils.toDouble(value.toString()) : 0;
+        return value instanceof Double ? Utilities.toDouble(value.toString()) : 0;
     }
 
     public int getInt(EntityType type, String path) {
         Object value = getValue(type, path);
-        return value instanceof Number ? NumberUtils.toInt(value.toString()) : 0;
+        return value instanceof Number ? Utilities.toInt(value.toString()) : 0;
     }
 
     public String getString(EntityType type, String path) {

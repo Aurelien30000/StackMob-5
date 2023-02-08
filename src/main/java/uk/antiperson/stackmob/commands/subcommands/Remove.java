@@ -1,12 +1,12 @@
 package uk.antiperson.stackmob.commands.subcommands;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.*;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.commands.*;
 import uk.antiperson.stackmob.entity.StackEntity;
+import uk.antiperson.stackmob.utils.Utilities;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -66,7 +66,7 @@ public class Remove extends SubCommand {
                 stackEntity.remove();
             }
         }
-        sender.sendSuccess(WordUtils.capitalizeFully(args[0]) + " entities matching your criteria have been removed.");
+        sender.sendSuccess(Utilities.capitalizeString(args[0]) + " entities matching your criteria have been removed.");
         return false;
     }
 

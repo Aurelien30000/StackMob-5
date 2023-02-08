@@ -127,13 +127,69 @@ public class Utilities {
         return string.replaceAll("[^A-Za-z\\d]", " ");
     }
 
+    public static double toDouble(final String str) {
+        return toDouble(str, 0.0d);
+    }
+
+    public static double toDouble(final String str, final double defaultValue) {
+        if (str == null) {
+            return defaultValue;
+        }
+        try {
+            return Double.parseDouble(str);
+        } catch (final NumberFormatException nfe) {
+            return defaultValue;
+        }
+    }
+
+    public static int toInt(final String str) {
+        return toInt(str, 0);
+    }
+
+    public static int toInt(final String str, final int defaultValue) {
+        if (str == null) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(str);
+        } catch (final NumberFormatException nfe) {
+            return defaultValue;
+        }
+    }
+
+    public static String[] removeFirst(String[] array) {
+        final String[] newArray = new String[array.length - 1];
+        System.arraycopy(array, 1, newArray, 0, array.length - 1);
+        return newArray;
+    }
+
+    public static String capitalizeString(String string) {
+        final String work = string.toLowerCase();
+        final char[] chars = work.toCharArray();
+        boolean shouldCapitalize = true;
+        for (int i = 0; i < chars.length; i++) {
+            if (shouldCapitalize) {
+                if (Character.isAlphabetic(chars[i])) {
+                    chars[i] = Character.toTitleCase(chars[i]);
+                }
+                shouldCapitalize = false;
+                continue;
+            }
+            if (Character.isSpaceChar(chars[i])) {
+                shouldCapitalize = true;
+            }
+        }
+        return new String(chars);
+    }
+
     public enum MinecraftVersion {
         V1_16_R1("v1_16_R1"),
         V1_17_R1("v1_17_R1"),
         V1_18_R1("v1_18_R1"),
         V1_18_R2("v1_18_R2"),
         V1_19_R1("v1_19_R1"),
-        V1_19_R2("v1_19_R2"),;
+        V1_19_R2("v1_19_R2"),
+        ;
 
         final String internalName;
 
