@@ -2,7 +2,7 @@ name: StackMob
 main: uk.antiperson.stackmob.StackMob
 version: ${project.version}
 api-version: 1.16
-softdepend: [ WorldGuard, MythicMobs, ProtocolLib, ClearLag, MyPet, mcMMO, Jobs, Citizens ]
+softdepend: [ WorldGuard, MythicMobs, ProtocolLib, ClearLag, MyPet, mcMMO, Citizens ]
 author: antiPerson
 authors: [ Aurelien30000 ]
 website: https://www.spigotmc.org/resources/stackmob-enhance-your-servers-performance-without-the-sacrifice.29999/
