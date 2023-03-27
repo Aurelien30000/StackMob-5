@@ -104,9 +104,15 @@ public class StackMob extends JavaPlugin {
         if (getMainConfig().isTagNearbyArmorStandEnabled()) {
             new TagMoveTask(this).runTaskTimer(this, 10, 1);
         }
-        if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION && getHookManager().getProtocolLibHook() == null) {
-            getLogger().warning("You are not running the plugin's native version and ProtocolLib could not be found (or has been disabled).");
-            getLogger().warning("The display name visibility setting 'NEARBY' will not work unless this is fixed.");
+        getLogger().info("Detected CraftBukkit NMS version " + Utilities.getMinecraftVersion() +
+                (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION ? ", native version is " + Utilities.NMS_VERSION : ""));
+        if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION) {
+            if (getHookManager().getProtocolLibHook() == null) {
+                getLogger().warning("You are not running the plugins native version and ProtocolLib could not be found (or has been disabled).");
+                getLogger().warning("The display name visibility setting 'NEARBY' will not work unless this is fixed.");
+            } else {
+                getLogger().info("You are not using the native version for this plugin (" + Utilities.NMS_VERSION + "). Using ProtocolLib.");
+            }
         }
         getEntityManager().registerAllEntities();
         getUpdater().checkUpdate().whenComplete(((updateResult, throwable) -> {

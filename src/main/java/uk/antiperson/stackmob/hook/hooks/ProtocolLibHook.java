@@ -5,6 +5,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -17,9 +18,7 @@ import uk.antiperson.stackmob.hook.Hook;
 import uk.antiperson.stackmob.hook.HookMetadata;
 import uk.antiperson.stackmob.utils.Utilities;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @HookMetadata(name = "ProtocolLib", config = "protocollib")
 public class ProtocolLibHook extends Hook {
@@ -37,12 +36,28 @@ public class ProtocolLibHook extends Hook {
         protocolManager = ProtocolLibrary.getProtocolManager();
     }
 
+    /*
+    https://github.com/Ste3et/FurnitureLib/commit/2f7c9adbe90716811ecc620c021bed0c727b10f0#diff-0f3b41bd8ab636343d5689cbcc1e2d008aa3b65454e5af09cba8059a4ac51bed */
+    private void writeWatchableObjects(WrappedDataWatcher watcher, PacketContainer packetContainer) {
+        if (Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_19_R1)) {
+            final List<WrappedDataValue> wrappedDataValueList = new ArrayList<>();
+            watcher.getWatchableObjects().stream().filter(Objects::nonNull).forEach(entry -> {
+                WrappedDataWatcher.WrappedDataWatcherObject dataWatcherObject = entry.getWatcherObject();
+                wrappedDataValueList.add(new WrappedDataValue(dataWatcherObject.getIndex(), dataWatcherObject.getSerializer(), entry.getRawValue()));
+            });
+            packetContainer.getDataValueCollectionModifier().write(0, wrappedDataValueList);
+            return;
+        }
+        packetContainer.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+    }
+
+
     public void sendPacket(Player player, Entity entity, boolean visible) {
         PacketContainer packetContainer = new PacketContainer(PacketType.Play.Server.ENTITY_METADATA);
         WrappedDataWatcher watcher = new WrappedDataWatcher(entity);
         watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, WrappedDataWatcher.Registry.get(Boolean.class)), visible);
         packetContainer.getEntityModifier(entity.getWorld()).write(0, entity);
-        packetContainer.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+        writeWatchableObjects(watcher, packetContainer);
         protocolManager.sendServerPacket(player, packetContainer);
     }
 
@@ -67,7 +82,7 @@ public class ProtocolLibHook extends Hook {
         int markerPacketId = Utilities.getMinecraftVersion() == Utilities.MinecraftVersion.V1_16_R1 ? 14 : 15;
         watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(markerPacketId, WrappedDataWatcher.Registry.get(Byte.class)), (byte) 0x10);
         packetContainer1.getIntegers().write(0, entityIdCounter);
-        packetContainer1.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+        writeWatchableObjects(watcher, packetContainer1);
         entityIdCounter += 1;
         protocolManager.sendServerPacket(player, packetContainer);
         protocolManager.sendServerPacket(player, packetContainer1);
@@ -79,7 +94,7 @@ public class ProtocolLibHook extends Hook {
         WrappedDataWatcher watcher = new WrappedDataWatcher();
         watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(2, WrappedDataWatcher.Registry.getChatComponentSerializer(true)), Optional.of(WrappedChatComponent.fromJson(GsonComponentSerializer.gson().serialize(newName)).getHandle()));
         packetContainer1.getIntegers().write(0, id);
-        packetContainer1.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+        writeWatchableObjects(watcher, packetContainer1);
         protocolManager.sendServerPacket(player, packetContainer1);
     }
 
