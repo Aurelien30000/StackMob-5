@@ -15,9 +15,10 @@ public interface FakeArmorStand {
     void removeFakeArmorStand();
 
     default Location adjustLocation(Entity entity, double offset) {
+        final Component customName;
         double adjustment = offset > 0
                 ? offset
-                : entity.customName() == null || entity.customName() == Component.empty() ? 0.1 : 0.3;
+                : (customName = entity.customName()) == null || customName == Component.empty() ? 0.1 : 0.3;
         return entity.getLocation().add(0, entity.getHeight() + adjustment, 0);
     }
 
