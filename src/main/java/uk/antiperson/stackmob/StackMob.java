@@ -16,9 +16,10 @@ import uk.antiperson.stackmob.entity.traits.TraitManager;
 import uk.antiperson.stackmob.hook.HookManager;
 import uk.antiperson.stackmob.listeners.*;
 import uk.antiperson.stackmob.packets.PlayerManager;
-import uk.antiperson.stackmob.tasks.MergeTask;
-import uk.antiperson.stackmob.tasks.TagCheckTask;
-import uk.antiperson.stackmob.tasks.TagMoveTask;
+import uk.antiperson.stackmob.scheduler.BukkitScheduler;
+import uk.antiperson.stackmob.scheduler.FoliaScheduler;
+import uk.antiperson.stackmob.scheduler.Scheduler;
+import uk.antiperson.stackmob.tasks.*;
 import uk.antiperson.stackmob.utils.ItemTools;
 import uk.antiperson.stackmob.utils.Updater;
 import uk.antiperson.stackmob.utils.Utilities;
@@ -29,6 +30,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 
 public class StackMob extends JavaPlugin {
+
+    public static final boolean IS_FOLIA;
+
+    static {
+        boolean f = false;
+        try {
+            Class.forName("io.papermc.paper.threadedregions.scheduler.RegionScheduler");
+            f = true;
+        } catch (ClassNotFoundException ignored) {
+        }
+        IS_FOLIA = f;
+    }
 
     private final NamespacedKey stackKey = new NamespacedKey(this, "stack-size");
     private final NamespacedKey toolKey = new NamespacedKey(this, "stack-tool");
@@ -43,6 +56,7 @@ public class StackMob extends JavaPlugin {
     private Updater updater;
     private ItemTools itemTools;
     private PlayerManager playerManager;
+    private Scheduler scheduler;
 
     @Override
     public void onLoad() {
@@ -55,6 +69,7 @@ public class StackMob extends JavaPlugin {
             getLogger().log(Level.SEVERE, "There was a problem registering hooks. Features won't work.");
             e.printStackTrace();
         }
+        scheduler = IS_FOLIA ? new FoliaScheduler() : new BukkitScheduler();
     }
 
     @Override
@@ -98,11 +113,11 @@ public class StackMob extends JavaPlugin {
         command.setTabCompleter(commands);
         commands.registerSubCommands();
         final int stackInterval = getMainConfig().getStackInterval();
-        new MergeTask(this).runTaskTimer(this, 20, stackInterval);
+        scheduler.runGlobalTaskTimer(this, IS_FOLIA ? new FoliaMergeTask(this) : new MergeTask(this), 20, stackInterval);
         final int tagInterval = getMainConfig().getTagNearbyInterval();
-        new TagCheckTask(this).runTaskTimer(this, 30, tagInterval);
+        scheduler.runGlobalTaskTimer(this, IS_FOLIA ? new FoliaTagCheckTask(this) : new TagCheckTask(this), 30, tagInterval);
         if (getMainConfig().isTagNearbyArmorStandEnabled()) {
-            new TagMoveTask(this).runTaskTimer(this, 10, 1);
+            scheduler.runGlobalTaskTimer(this, IS_FOLIA ? new FoliaTagMoveTask(this) : new TagMoveTask(this), 10, 1);
         }
         getLogger().info("Detected CraftBukkit NMS version " + Utilities.getMinecraftVersion() +
                 (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION ? ", native version is " + Utilities.NMS_VERSION : ""));
@@ -242,6 +257,10 @@ public class StackMob extends JavaPlugin {
 
     public ItemTools getItemTools() {
         return itemTools;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
 }

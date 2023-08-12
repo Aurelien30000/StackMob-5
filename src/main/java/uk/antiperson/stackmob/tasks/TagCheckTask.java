@@ -17,7 +17,7 @@ public class TagCheckTask extends BukkitRunnable {
     @Override
     public void run() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            PlayerWatcher playerWatcher = sm.getPlayerManager().createPlayerWatcher(player);
+            final PlayerWatcher playerWatcher = sm.getPlayerManager().createPlayerWatcher(player);
             playerWatcher.checkPlayer();
         }
     }

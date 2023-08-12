@@ -46,7 +46,7 @@ public class KillStepDamage extends DeathMethod {
         final double maxHealth = Math.min(attribute.getValue(), attribute.getDefaultValue());
         final StackableMobHook smh = sm.getHookManager().getApplicableHook(spawned);
         if (smh instanceof MythicMobsStackHook) {
-            sm.getServer().getScheduler().runTaskLater(sm, bukkitTask -> {
+            sm.getScheduler().runTaskLater(sm, spawned.getEntity(), () -> {
                 if (!spawned.getEntity().isDead()) {
                     spawned.getEntity().setHealth(maxHealth - leftOverDamage);
                 }

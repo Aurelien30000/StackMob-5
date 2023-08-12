@@ -23,13 +23,12 @@ public class SpawnListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSpawn(CreatureSpawnEvent event) {
-        sm.getServer().getScheduler().runTask(sm, () -> {
+        sm.getScheduler().runTask(sm, event.getEntity(), () -> {
             final LivingEntity eventEntity = event.getEntity();
             if (!eventEntity.isValid()) {
                 return;
             }
-            if (eventEntity instanceof Bee
-                    && event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.BEEHIVE) {
+            if (eventEntity instanceof Bee && event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.BEEHIVE) {
                 return;
             }
             if (sm.getEntityManager().isStackedEntity(eventEntity)) {
