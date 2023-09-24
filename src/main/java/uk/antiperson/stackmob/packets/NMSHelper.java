@@ -6,8 +6,8 @@ import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.boss.wither.EntityWither;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -24,6 +24,7 @@ public class NMSHelper {
 
     public static boolean canCreateWitherRose(LivingEntity entity) {
         EntityLiving entityLiving = ((CraftLivingEntity) entity).getHandle();
-        return entityLiving.eH() instanceof EntityWither;
+        // EntityLiving#getKillCredit
+        return entityLiving.eK() instanceof EntityWither;
     }
 }
