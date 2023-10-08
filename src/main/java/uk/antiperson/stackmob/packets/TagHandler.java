@@ -24,7 +24,8 @@ public class TagHandler {
     }
 
     public void init() {
-        if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION) {
+        // TODO Temporary workaround!
+        if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION || true) {
             this.fakeArmorStand = new ProtocolLibFakeArmorStand(sm, player);
             return;
         }
