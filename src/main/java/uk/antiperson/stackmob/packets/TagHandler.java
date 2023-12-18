@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.entity.StackEntity;
 import uk.antiperson.stackmob.hook.hooks.ProtocolLibHook;
-import uk.antiperson.stackmob.utils.Utilities;
 
 public class TagHandler {
 
@@ -24,12 +23,8 @@ public class TagHandler {
     }
 
     public void init() {
-        // TODO Temporary workaround!
-        if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION || true) {
-            this.fakeArmorStand = new ProtocolLibFakeArmorStand(sm, player);
-            return;
-        }
-        this.fakeArmorStand = new NmsFakeArmorStand(player);
+        // Force protocollib for 1.20.2+
+        this.fakeArmorStand = new ProtocolLibFakeArmorStand(sm, player);
     }
 
     public void newlyInRange() {
@@ -75,15 +70,11 @@ public class TagHandler {
     }
 
     private void sendPacket(Entity entity, Player player, boolean tagVisible) {
-        if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION) {
-            ProtocolLibHook protocolLibHook = sm.getHookManager().getProtocolLibHook();
-            if (protocolLibHook == null) {
-                return;
-            }
-            protocolLibHook.sendPacket(player, entity, tagVisible);
+        ProtocolLibHook protocolLibHook = sm.getHookManager().getProtocolLibHook();
+        if (protocolLibHook == null) {
             return;
         }
-        NMSHelper.sendVisibilityPacket(player, entity, tagVisible);
+        protocolLibHook.sendPacket(player, entity, tagVisible);
     }
 
     public boolean isTagVisible() {
