@@ -31,6 +31,7 @@ public class MainConfig extends SpecialConfigFile {
     private final Map<EntityType, Integer> stack_threshold_amount = new EnumMap<>(EntityType.class);
     private boolean default_stack_check_location_enabled;
     private double default_stack_check_location_distance;
+    private int default_stack_check_location_timeout;
     private boolean default_stack_on_spawn;
     private final Map<EntityType, Boolean> stack_on_spawn = new EnumMap<>(EntityType.class);
     private boolean default_stack_line_of_sight;
@@ -140,6 +141,7 @@ public class MainConfig extends SpecialConfigFile {
         default_stack_threshold_amount = getInt("stack.threshold.amount");
         default_stack_check_location_enabled = getBoolean("stack.check-location.enabled");
         default_stack_check_location_distance = getDouble("stack.check-location.distance");
+        default_stack_check_location_timeout = getInt("stack.check-location.timeout");
         default_stack_on_spawn = getBoolean("stack.on-spawn");
         default_stack_line_of_sight = getBoolean("stack.line-of-sight");
         default_stack_nametag_mode = EntityConfig.NameTagStackMode.valueOf(getString("stack.nametag-mode"));
@@ -439,6 +441,10 @@ public class MainConfig extends SpecialConfigFile {
 
     public double getCheckHasMovedDistance() {
         return default_stack_check_location_distance;
+    }
+
+    public int getCheckHasMovedTimeout() {
+        return default_stack_check_location_timeout;
     }
 
     public boolean isStackOnSpawn(EntityType type) {
