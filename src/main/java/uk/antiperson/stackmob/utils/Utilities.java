@@ -23,6 +23,18 @@ import java.util.concurrent.CompletableFuture;
 
 public class Utilities {
 
+    public static final boolean IS_FOLIA;
+
+    static {
+        boolean f = false;
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            f = true;
+        } catch (ClassNotFoundException ignored) {
+        }
+        IS_FOLIA = f;
+    }
+
     public static final Component PREFIX = Component.text("StackMob ").color(TextColor.color(0, 206, 209)).append(Component.text(">> ").color(NamedTextColor.GRAY)).compact();
     public static final String PREFIX_STRING = LegacyComponentSerializer.legacySection().serialize(PREFIX);
     public static final String SLIME_METADATA = "deathcount";
@@ -35,7 +47,6 @@ public class Utilities {
 
     private static final boolean usingPaper;
     private static MinecraftVersion minecraftVersion;
-    public static final MinecraftVersion NMS_VERSION = MinecraftVersion.V1_20_R2;
     private static final LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.builder().character('&').hexColors().hexCharacter('#').build();
 
     static {
@@ -88,11 +99,11 @@ public class Utilities {
 
     public static MinecraftVersion getMinecraftVersion() {
         if (minecraftVersion == null) {
-            minecraftVersion = MinecraftVersion.V1_16_R1;
-            String packageName = Bukkit.getServer().getClass().getPackage().getName();
-            String ending = packageName.substring(packageName.lastIndexOf('.') + 1);
+            minecraftVersion = MinecraftVersion.V1_16;
+            String packageName = Bukkit.getServer().getBukkitVersion();
+            String ending = packageName.substring(0, packageName.indexOf('-'));
             for (MinecraftVersion version : MinecraftVersion.values()) {
-                if (version.getInternalName().equals(ending)) {
+                if (ending.contains(version.getInternalName())) {
                     minecraftVersion = version;
                 }
             }
@@ -180,17 +191,21 @@ public class Utilities {
         return new String(chars);
     }
 
+    public static Material getScuteMaterial() {
+        return isVersionAtLeast(MinecraftVersion.V1_20_6)
+                ? Material.TURTLE_SCUTE
+                : Material.getMaterial("SCUTE");
+    }
+
     public enum MinecraftVersion {
-        V1_16_R1("v1_16_R1"),
-        V1_17_R1("v1_17_R1"),
-        V1_18_R1("v1_18_R1"),
-        V1_18_R2("v1_18_R2"),
-        V1_19_R1("v1_19_R1"),
-        V1_19_R2("v1_19_R2"),
-        V1_19_R3("v1_19_R3"),
-        V1_20_R1("v1_20_R1"),
-        V1_20_R2("v1_20_R2"),
-        V1_20_R3("v1_20_R3");
+        V1_16("1.16"),
+        V1_17("1.17"),
+        V1_18("1.18"),
+        V1_18_2("1.18.2"),
+        V1_19_4("1.19.4"),
+        V1_20_4("1.20.4"),
+        V1_20_6("1.20.6"),
+        V1_21("1.21");
 
         final String internalName;
 

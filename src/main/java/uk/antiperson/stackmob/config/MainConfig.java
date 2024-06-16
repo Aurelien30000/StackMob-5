@@ -1,5 +1,6 @@
 package uk.antiperson.stackmob.config;
 
+import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -8,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import uk.antiperson.stackmob.StackMob;
@@ -107,6 +109,15 @@ public class MainConfig extends SpecialConfigFile {
     private final Map<EntityType, Set<CreatureSpawnEvent.SpawnReason>> disable_targeting_reason_blacklist = new EnumMap<>(EntityType.class);
 
 
+    private boolean default_disable_knockback_enabled;
+    private final Map<EntityType, Boolean> disable_knockback_enabled = new EnumMap<>(EntityType.class);
+    private final Set<EntityType> default_disable_knockback_type_blacklist = EnumSet.noneOf(EntityType.class);
+    private final Set<CreatureSpawnEvent.SpawnReason> default_disable_knockback_reason_blacklist = EnumSet.noneOf(CreatureSpawnEvent.SpawnReason.class);
+    private final Map<EntityType, Set<CreatureSpawnEvent.SpawnReason>> disable_knockback_reason_blacklist = new EnumMap<>(EntityType.class);
+    private final Set<EntityKnockbackEvent.Cause> default_disable_knockback_cause_blacklist = EnumSet.noneOf(EntityKnockbackEvent.Cause.class);
+    private final Map<EntityType, Set<EntityKnockbackEvent.Cause>> disable_knockback_cause_blacklist = new EnumMap<>(EntityType.class);
+
+
     private final Set<EntityType> default_types_blacklist = EnumSet.noneOf(EntityType.class);
     private final Set<CreatureSpawnEvent.SpawnReason> default_reason_blacklist = EnumSet.noneOf(CreatureSpawnEvent.SpawnReason.class);
     private final Map<EntityType, Set<CreatureSpawnEvent.SpawnReason>> reason_blacklist = new EnumMap<>(EntityType.class);
@@ -204,6 +215,12 @@ public class MainConfig extends SpecialConfigFile {
         default_disable_targeting_reason_blacklist.addAll(getList("disable-targeting.reason-blacklist").asEnumList(CreatureSpawnEvent.SpawnReason.class));
 
 
+        default_disable_knockback_enabled = getBoolean("disable-knockback.enabled");
+        default_disable_knockback_type_blacklist.addAll(getList("disable-knockback.type-blacklist").asEnumList(EntityType.class));
+        default_disable_knockback_reason_blacklist.addAll(getList("disable-knockback.reason-blacklist").asEnumList(CreatureSpawnEvent.SpawnReason.class));
+        default_disable_knockback_cause_blacklist.addAll(getList("disable-knockback.cause-blacklist").asEnumList(EntityKnockbackEvent.Cause.class));
+
+
         default_types_blacklist.addAll(getList("types-blacklist").asEnumList(EntityType.class));
         for (EntityConfig.EntityGrouping entityGrouping : getList("types-blacklist").asEnumList(EntityConfig.EntityGrouping.class)) {
             default_types_blacklist.addAll(entityGrouping.getEntityTypes());
@@ -236,6 +253,12 @@ public class MainConfig extends SpecialConfigFile {
         default_jobs_hook = JobsHook.JobHookMode.valueOf(getString("hooks.jobs.mode"));
 
         for (EntityType type : EntityType.values()) {
+            if (type.getEntityClass() == null || !Mob.class.isAssignableFrom(type.getEntityClass())) {
+                if (type != EntityType.UNKNOWN) {
+                    continue;
+                }
+            }
+
             final int custom_stack_max_size = getInt(type, "stack.max-size");
             if (custom_stack_max_size != default_stack_max_size) stack_max_size.put(type, custom_stack_max_size);
 
@@ -363,6 +386,21 @@ public class MainConfig extends SpecialConfigFile {
             custom_disable_targeting_reason_blacklist.addAll(getList(type, "disable-targeting.reason-blacklist").asEnumList(CreatureSpawnEvent.SpawnReason.class));
             if (!custom_disable_targeting_reason_blacklist.equals(default_disable_targeting_reason_blacklist))
                 disable_targeting_reason_blacklist.put(type, custom_disable_targeting_reason_blacklist);
+
+
+            final boolean custom_disable_knockback_enabled = getBoolean(type, "disable-knockback.enabled");
+            if (custom_disable_knockback_enabled != default_disable_knockback_enabled)
+                disable_knockback_enabled.put(type, custom_disable_knockback_enabled);
+
+            final Set<CreatureSpawnEvent.SpawnReason> custom_disable_knockback_reason_blacklist = EnumSet.noneOf(CreatureSpawnEvent.SpawnReason.class);
+            custom_disable_knockback_reason_blacklist.addAll(getList(type, "disable-knockback.reason-blacklist").asEnumList(CreatureSpawnEvent.SpawnReason.class));
+            if (!custom_disable_knockback_reason_blacklist.equals(default_disable_knockback_reason_blacklist))
+                disable_knockback_reason_blacklist.put(type, custom_disable_knockback_reason_blacklist);
+
+            final Set<EntityKnockbackEvent.Cause> custom_disable_knockback_cause_blacklist = EnumSet.noneOf(EntityKnockbackEvent.Cause.class);
+            custom_disable_knockback_cause_blacklist.addAll(getList(type, "disable-knockback.cause-blacklist").asEnumList(EntityKnockbackEvent.Cause.class));
+            if (!custom_disable_knockback_cause_blacklist.equals(default_disable_knockback_cause_blacklist))
+                disable_knockback_cause_blacklist.put(type, custom_disable_knockback_cause_blacklist);
 
 
             final Set<CreatureSpawnEvent.SpawnReason> custom_reason_blacklist = EnumSet.noneOf(CreatureSpawnEvent.SpawnReason.class);
@@ -590,6 +628,22 @@ public class MainConfig extends SpecialConfigFile {
         return disable_targeting_reason_blacklist.getOrDefault(type, default_disable_targeting_reason_blacklist).contains(reason);
     }
 
+    public boolean isKnockbackDisabled(EntityType type) {
+        return disable_knockback_enabled.getOrDefault(type, default_disable_knockback_enabled);
+    }
+
+    public boolean isKnockbackDisabledTypes(EntityType type) {
+        return default_disable_knockback_type_blacklist.contains(type);
+    }
+
+    public boolean isKnockbackDisabledReasons(EntityType type, CreatureSpawnEvent.SpawnReason reason) {
+        return disable_knockback_reason_blacklist.getOrDefault(type, default_disable_knockback_reason_blacklist).contains(reason);
+    }
+
+    public boolean isKnockbackDisabledCause(EntityType type, EntityKnockbackEvent.Cause cause) {
+        return disable_knockback_cause_blacklist.getOrDefault(type, default_disable_knockback_cause_blacklist).contains(cause);
+    }
+
     public EntityConfig.ListenerMode getListenerMode(EntityType type, EntityConfig.EventType eventType) {
         return events_mode.getOrDefault(type, default_events_mode).get(eventType.getConfigKey());
     }
@@ -666,8 +720,9 @@ public class MainConfig extends SpecialConfigFile {
     public void updateFile() throws IOException {
         if (isSet("check-area.x")) {
             sm.getLogger().info("Old config detected. Renaming to config.old and making a new one.");
+            sm.getLogger().warning("You are going to loose mob stack data!!!");
+            sm.getLogger().info("I would suggest either running an older version of StackMob and use the StackMobBridge plugin to covert starts. Or just replace stacks manually.");
             makeOld();
-            sm.downloadBridge();
             return;
         }
         super.updateFile();

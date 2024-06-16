@@ -5,7 +5,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
 public class BukkitScheduler implements Scheduler {
-
     @Override
     public void runGlobalTaskTimer(Plugin plugin, Runnable runnable, long delay, long period) {
         plugin.getServer().getScheduler().runTaskTimer(plugin, runnable, delay, period);
@@ -30,5 +29,4 @@ public class BukkitScheduler implements Scheduler {
     public void runTaskLater(Plugin plugin, Entity entity, Runnable runnable, long delay) {
         plugin.getServer().getScheduler().runTaskLater(plugin, runnable, delay);
     }
-
 }

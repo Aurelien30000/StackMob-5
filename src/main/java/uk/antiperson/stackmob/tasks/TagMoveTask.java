@@ -2,14 +2,14 @@ package uk.antiperson.stackmob.tasks;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import uk.antiperson.stackmob.StackMob;
 import uk.antiperson.stackmob.packets.PlayerWatcher;
+import uk.antiperson.stackmob.utils.Utilities;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TagMoveTask extends BukkitRunnable {
+public class TagMoveTask implements Runnable {
 
     private final StackMob sm;
 
@@ -20,13 +20,19 @@ public class TagMoveTask extends BukkitRunnable {
     @Override
     public void run() {
         final List<Player> playerArrayList = new ArrayList<>(Bukkit.getOnlinePlayers());
-        sm.getServer().getScheduler().runTaskAsynchronously(sm, () -> {
+        sm.getScheduler().runTaskAsynchronously(sm, () -> {
             for (Player player : playerArrayList) {
                 PlayerWatcher playerWatcher = sm.getPlayerManager().getPlayerWatcher(player);
                 if (playerWatcher == null) {
                     continue;
                 }
-                playerWatcher.updateTagLocations();
+
+                Runnable runnable = playerWatcher::updateTagLocations;
+                if (Utilities.IS_FOLIA) {
+                    sm.getScheduler().runTask(sm, player, runnable);
+                } else {
+                    runnable.run();
+                }
             }
         });
     }

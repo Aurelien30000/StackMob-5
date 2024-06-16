@@ -50,7 +50,7 @@ public class TraitManager {
         if (Utilities.isPaper()) {
             registerTrait(TurtleHasEgg.class);
         }
-        if (Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_19_R1)) {
+        if (Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_19_4)) {
             registerTrait(AllayOwner.class);
             registerTrait(FrogVariant.class);
         }

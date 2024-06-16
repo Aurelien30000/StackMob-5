@@ -5,8 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.InvalidPluginException;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import uk.antiperson.stackmob.commands.Commands;
 import uk.antiperson.stackmob.config.EntityTranslation;
@@ -19,12 +17,13 @@ import uk.antiperson.stackmob.packets.PlayerManager;
 import uk.antiperson.stackmob.scheduler.BukkitScheduler;
 import uk.antiperson.stackmob.scheduler.FoliaScheduler;
 import uk.antiperson.stackmob.scheduler.Scheduler;
-import uk.antiperson.stackmob.tasks.*;
+import uk.antiperson.stackmob.tasks.MergeTask;
+import uk.antiperson.stackmob.tasks.TagCheckTask;
+import uk.antiperson.stackmob.tasks.TagMoveTask;
 import uk.antiperson.stackmob.utils.ItemTools;
 import uk.antiperson.stackmob.utils.Updater;
 import uk.antiperson.stackmob.utils.Utilities;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
@@ -69,7 +68,7 @@ public class StackMob extends JavaPlugin {
             getLogger().log(Level.SEVERE, "There was a problem registering hooks. Features won't work.");
             e.printStackTrace();
         }
-        scheduler = IS_FOLIA ? new FoliaScheduler() : new BukkitScheduler();
+        scheduler = Utilities.IS_FOLIA ? new FoliaScheduler() : new BukkitScheduler();
     }
 
     @Override
@@ -113,21 +112,15 @@ public class StackMob extends JavaPlugin {
         command.setTabCompleter(commands);
         commands.registerSubCommands();
         final int stackInterval = getMainConfig().getStackInterval();
-        scheduler.runGlobalTaskTimer(this, IS_FOLIA ? new FoliaMergeTask(this) : new MergeTask(this), 20, stackInterval);
+        getScheduler().runGlobalTaskTimer(this, new MergeTask(this), 20, stackInterval);
         final int tagInterval = getMainConfig().getTagNearbyInterval();
-        scheduler.runGlobalTaskTimer(this, IS_FOLIA ? new FoliaTagCheckTask(this) : new TagCheckTask(this), 30, tagInterval);
+        getScheduler().runGlobalTaskTimer(this, new TagCheckTask(this), 30, tagInterval);
         if (getMainConfig().isTagNearbyArmorStandEnabled()) {
-            scheduler.runGlobalTaskTimer(this, IS_FOLIA ? new FoliaTagMoveTask(this) : new TagMoveTask(this), 10, 1);
+            getScheduler().runGlobalTaskTimer(this, new TagMoveTask(this), 10, 1);
         }
-        getLogger().info("Detected CraftBukkit NMS version " + Utilities.getMinecraftVersion() +
-                (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION ? ", native version is " + Utilities.NMS_VERSION : ""));
-        if (Utilities.getMinecraftVersion() != Utilities.NMS_VERSION) {
-            if (getHookManager().getProtocolLibHook() == null) {
-                getLogger().warning("You are not running the plugins native version and ProtocolLib could not be found (or has been disabled).");
-                getLogger().warning("The display name visibility setting 'NEARBY' will not work unless this is fixed.");
-            } else {
-                getLogger().info("You are not using the native version for this plugin (" + Utilities.NMS_VERSION + "). Using ProtocolLib.");
-            }
+        getLogger().info("Detected server version " + Utilities.getMinecraftVersion());
+        if (getHookManager().getProtocolLibHook() == null) {
+            getLogger().warning("ProtocolLib could not be found (or has been disabled). The display name visibility setting 'NEARBY' will not work unless this is fixed.");
         }
         getEntityManager().registerAllEntities();
         getUpdater().checkUpdate().whenComplete(((updateResult, throwable) -> {
@@ -166,11 +159,14 @@ public class StackMob extends JavaPlugin {
         registerEvent(BeeListener.class);
         registerEvent(LeashListener.class);
         registerEvent(EquipListener.class);
+        if (Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_20_4)) {
+            registerEvent(KnockbackListener.class);
+        }
         if (Utilities.isPaper()) {
             registerEvent(RemoveListener.class);
-            return;
+        } else {
+            registerEvent(ChunkListener.class);
         }
-        registerEvent(ChunkListener.class);
     }
 
     private void registerEvent(Class<? extends Listener> clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -191,28 +187,6 @@ public class StackMob extends JavaPlugin {
         }
         Listener listener = clazz.getDeclaredConstructor(StackMob.class).newInstance(this);
         getServer().getPluginManager().registerEvents(listener, this);
-    }
-
-    public void downloadBridge() {
-        getLogger().info("Installing StackMobBridge (utility to convert legacy mob stacks)...");
-        File file = new File(getDataFolder().getParent(), "StackMobBridge.jar");
-        String bridgeUrl = "http://aqua.api.spiget.org/v2/resources/45495/download";
-        Utilities.downloadFile(file, bridgeUrl).whenComplete(((downloadResult, throwable) -> {
-            if (downloadResult == Utilities.DownloadResult.ERROR) {
-                getLogger().log(Level.SEVERE, "There was an issue while downloading StackMobBridge.");
-                getLogger().log(Level.SEVERE, "This means that mob stacks will not be converted to the newer format.");
-                return;
-            }
-            if (getServer().getPluginManager().getPlugin("StackMobBridge") != null) {
-                return;
-            }
-            try {
-                Plugin plugin = getPluginLoader().loadPlugin(file);
-                getPluginLoader().enablePlugin(plugin);
-            } catch (InvalidPluginException e) {
-                e.printStackTrace();
-            }
-        }));
     }
 
     public static StackMob getInstance() {

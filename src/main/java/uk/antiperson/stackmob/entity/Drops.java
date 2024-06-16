@@ -76,9 +76,7 @@ public class Drops {
         }
 
         // Special case with death skip animation and a Wither kill. This handles/fixes wither rose dropping everytime.
-        if (skipDeathAnimation
-                && Utilities.getMinecraftVersion() == Utilities.NMS_VERSION
-                && NMSHelper.canCreateWitherRose(dead)) {
+        if (skipDeathAnimation && NMSHelper.canCreateWitherRose(dead)) {
             // Simulates LivingEntity#createWitherRose, deathAmount times.
             items.put(new ItemStack(Material.WITHER_ROSE), deathAmount);
         }

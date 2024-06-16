@@ -5,7 +5,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
 public interface Scheduler {
-
     void runGlobalTaskTimer(Plugin plugin, Runnable runnable, long delay, long period);
 
     void runTask(Plugin plugin, Location location, Runnable runnable);
@@ -15,5 +14,4 @@ public interface Scheduler {
     void runTaskAsynchronously(Plugin plugin, Runnable runnable);
 
     void runTaskLater(Plugin plugin, Entity entity, Runnable runnable, long delay);
-
 }

@@ -5,7 +5,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
 public class FoliaScheduler implements Scheduler {
-
     @Override
     public void runGlobalTaskTimer(Plugin plugin, Runnable runnable, long delay, long period) {
         plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> runnable.run(), (int) delay, (int) period);
@@ -32,5 +31,4 @@ public class FoliaScheduler implements Scheduler {
         entity.getScheduler().runDelayed(plugin, scheduledTask -> runnable.run(), () -> {
         }, (int) delay);
     }
-
 }
