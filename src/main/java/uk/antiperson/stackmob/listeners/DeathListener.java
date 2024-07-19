@@ -19,6 +19,7 @@ import uk.antiperson.stackmob.events.EventHelper;
 import uk.antiperson.stackmob.utils.Utilities;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 
 public class DeathListener implements Listener {
@@ -64,8 +65,16 @@ public class DeathListener implements Listener {
         }
         final Drops drop = stackEntity.getDrops();
         final int experience = drop.calculateDeathExperience(toMultiply, event.getDroppedExp());
-        final Map<ItemStack, Integer> drops = drop.calculateDrops(toMultiply, event.getDrops(), isSkipDeathAnimation);
-        Drops.dropItems(entity.getLocation(), drops);
+        // Workaround for craftbukkit bug?/change
+        // Enchantment effects are now applied after the death event is fired....
+        // Should probably investigate more...? How are the drops in the event correct.
+        if (Utilities.isVersionAtLeast(Utilities.MinecraftVersion.V1_21) && sm.getMainConfig().isDropLootTables(entity.getType())) {
+            final int finalToMultiply = toMultiply;
+            final Runnable runnable = () -> doDrops(entity, drop, finalToMultiply, event.getDrops(), isSkipDeathAnimation);
+            sm.getScheduler().runTaskLater(sm, stackEntity.getEntity(), runnable, 1);
+        } else {
+            doDrops(entity, drop, toMultiply, event.getDrops(), isSkipDeathAnimation);
+        }
         if (isSkipDeathAnimation && Utilities.isPaper()) {
             final ExperienceOrb orb = (ExperienceOrb) entity.getWorld().spawnEntity(entity.getLocation(), EntityType.EXPERIENCE_ORB);
             orb.setExperience(experience);
@@ -90,6 +99,11 @@ public class DeathListener implements Listener {
                  NoSuchMethodException e) {
             throw new RuntimeException("Error while determining death step!");
         }
+    }
+
+    private void doDrops(LivingEntity entity, Drops drop, int toMultiply, List<ItemStack> drops, boolean isSkipDeathAnimation) {
+        final Map<ItemStack, Integer> map = drop.calculateDrops(toMultiply, drops, isSkipDeathAnimation);
+        Drops.dropItems(entity.getLocation(), map);
     }
 
 }
